@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, reactive } from "vue";
+import { useRouter } from "vue-router";
 
 type MatchType = "singles" | "doubles";
 
@@ -18,6 +19,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "submit", setup: MatchSetup): void;
 }>();
+
+const router = useRouter();
 
 const form = reactive({
   top1: "",
@@ -83,7 +86,18 @@ function buildSetup(): MatchSetup {
 
 function onSubmit() {
   if (!canSubmit.value) return;
-  emit("submit", buildSetup());
+  const setup = buildSetup();
+  // Flatten player names for route and encode as comma-separated string
+  const players = JSON.stringify([...setup.teams.top, ...setup.teams.bottom]);
+  router.push({
+    name: "ServeSelection",
+    params: {
+      matchType: setup.matchType,
+    },
+    query: {
+      players,
+    },
+  });
 }
 </script>
 
