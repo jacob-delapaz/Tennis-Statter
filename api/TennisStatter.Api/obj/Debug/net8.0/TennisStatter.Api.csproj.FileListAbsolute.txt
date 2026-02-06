@@ -31,3 +31,4 @@
 /Users/jacobdelapaz/Desktop/Tennis-Statter/api/TennisStatter.Api/obj/Debug/net8.0/TennisStatter.Api.pdb
 /Users/jacobdelapaz/Desktop/Tennis-Statter/api/TennisStatter.Api/obj/Debug/net8.0/TennisStatter.Api.genruntimeconfig.cache
 /Users/jacobdelapaz/Desktop/Tennis-Statter/api/TennisStatter.Api/obj/Debug/net8.0/ref/TennisStatter.Api.dll
+/Users/jacobdelapaz/Desktop/Tennis-Statter/api/TennisStatter.Api/obj/Debug/net8.0/TennisStatter.Api.sourcelink.json
