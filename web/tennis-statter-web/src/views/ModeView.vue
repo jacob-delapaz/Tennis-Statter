@@ -30,7 +30,7 @@ const error = ref<string | null>(null);
 // IMPORTANT: set this to your API base URL.
 // Use the HTTPS URL your API prints in the console.
 // Example: https://localhost:7251
-const API_BASE = "https://localhost:7251";
+const API_BASE = "http://localhost:5280";
 
 async function start(mode: MatchMode) {
   loading.value = true;
