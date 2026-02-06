@@ -23,7 +23,7 @@ function go() {
   display: grid;
   place-items: center;
   gap: 24px;
-  background: #f7f7f7;
+  background: white;
 }
 .title {
   font-size: 42px;

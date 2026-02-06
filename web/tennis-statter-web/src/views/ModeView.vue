@@ -21,11 +21,14 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import { useRouter } from "vue-router";
 import { useMatchStore, type MatchMode } from "../stores/matchStore";
 
 const store = useMatchStore();
 const loading = ref(false);
 const error = ref<string | null>(null);
+
+const router = useRouter();
 
 // IMPORTANT: set this to your API base URL.
 // Use the HTTPS URL your API prints in the console.
@@ -51,8 +54,8 @@ async function start(mode: MatchMode) {
     const data = await res.json();
     store.setMatch(mode, data.matchId);
 
-    // Later you’ll navigate to the singles/doubles tracking page here
-    // router.push(`/match/${data.matchId}`);
+    // Navigate to EnterPlayersView after match creation
+    router.push({ name: 'EnterPlayers', params: { matchType: mode.toLowerCase() } });
   } catch (e: any) {
     error.value = e?.message ?? "Unknown error";
   } finally {
@@ -67,7 +70,7 @@ async function start(mode: MatchMode) {
   display: grid;
   place-items: center;
   gap: 24px;
-  background: #f7f7f7;
+  background: white;
 }
 .title {
   font-size: 36px;
