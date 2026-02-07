@@ -9,6 +9,17 @@
       </div>
     </div>
 
+    <!-- Point Confirmation Popup -->
+    <div v-if="showConfirmation" class="popup-overlay">
+      <div class="popup-box">
+        <p>Confirming that <strong>{{ confirmationWinnerName }}</strong> is the point winner?</p>
+        <div class="popup-buttons">
+          <button class="confirm-btn yes-btn" @click="confirmPoint">Yes</button>
+          <button class="confirm-btn no-btn" @click="cancelConfirmation">No</button>
+        </div>
+      </div>
+    </div>
+
     <div class="page-label">Singles Stat View</div>
 
     <!-- Score Box (top-left) -->
@@ -69,25 +80,25 @@
         </div>
       </div>
       <!-- 2nd Serve: 2 boxes -->
-      <div class="stat-group">
+      <div class="stat-group" :class="{ 'disabled-group': secondServeDisabled }">
         <div class="stat-label-center">2nd Serve</div>
         <div class="stat-box-row">
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeLocation' }" @click="activeCategory = 'secondServeLocation'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeLocation' && !secondServeDisabled, 'disabled-box': secondServeDisabled }" @click="!secondServeDisabled && (activeCategory = 'secondServeLocation')">
             <div class="stat-col">
               <div v-for="(opt, idx) in serveLocationOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.secondServeLocation === idx }"
-                   @click.stop="selections.secondServeLocation = idx; activeCategory = 'secondServeLocation'">
+                   :class="{ 'selected-row': selections.secondServeLocation === idx && !secondServeDisabled }"
+                   @click.stop="!secondServeDisabled && (selections.secondServeLocation = idx, activeCategory = 'secondServeLocation')">
                 {{ opt }}
               </div>
             </div>
           </div>
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeResult' }" @click="activeCategory = 'secondServeResult'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeResult' && !secondServeDisabled, 'disabled-box': secondServeDisabled }" @click="!secondServeDisabled && (activeCategory = 'secondServeResult')">
             <div class="stat-col">
               <div v-for="(opt, idx) in serveResultOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.secondServeResult === idx }"
-                   @click.stop="selections.secondServeResult = idx; activeCategory = 'secondServeResult'">
+                   :class="{ 'selected-row': selections.secondServeResult === idx && !secondServeDisabled }"
+                   @click.stop="!secondServeDisabled && (selections.secondServeResult = idx, activeCategory = 'secondServeResult')">
                 {{ opt }}
               </div>
             </div>
@@ -95,35 +106,35 @@
         </div>
       </div>
       <!-- Return: 3 boxes -->
-      <div class="stat-group">
+      <div class="stat-group" :class="{ 'disabled-group': returnDisabled }">
         <div class="stat-label-center">Return</div>
         <div class="stat-box-row">
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnSide' }" @click="activeCategory = 'returnSide'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnSide' && !returnDisabled, 'disabled-box': returnDisabled }" @click="!returnDisabled && (activeCategory = 'returnSide')">
             <div class="stat-col">
               <div v-for="(opt, idx) in returnSideOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.returnSide === idx }"
-                   @click.stop="selections.returnSide = idx; activeCategory = 'returnSide'">
+                   :class="{ 'selected-row': selections.returnSide === idx && !returnDisabled }"
+                   @click.stop="!returnDisabled && (selections.returnSide = idx, activeCategory = 'returnSide')">
                 {{ opt }}
               </div>
             </div>
           </div>
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnType' }" @click="activeCategory = 'returnType'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnType' && !returnDisabled, 'disabled-box': returnDisabled }" @click="!returnDisabled && (activeCategory = 'returnType')">
             <div class="stat-col">
               <div v-for="(opt, idx) in returnTypeOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.returnType === idx }"
-                   @click.stop="selections.returnType = idx; activeCategory = 'returnType'">
+                   :class="{ 'selected-row': selections.returnType === idx && !returnDisabled }"
+                   @click.stop="!returnDisabled && (selections.returnType = idx, activeCategory = 'returnType')">
                 {{ opt }}
               </div>
             </div>
           </div>
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnResult' }" @click="activeCategory = 'returnResult'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnResult' && !returnDisabled, 'disabled-box': returnDisabled }" @click="!returnDisabled && (activeCategory = 'returnResult')">
             <div class="stat-col">
               <div v-for="(opt, idx) in returnResultOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.returnResult === idx }"
-                   @click.stop="selections.returnResult = idx; activeCategory = 'returnResult'">
+                   :class="{ 'selected-row': selections.returnResult === idx && !returnDisabled }"
+                   @click.stop="!returnDisabled && (selections.returnResult = idx, activeCategory = 'returnResult')">
                 {{ opt }}
               </div>
             </div>
@@ -147,35 +158,35 @@
     <!-- Stat Entry Row 2 -->
     <div class="stat-row">
       <!-- Point End: 2 boxes -->
-      <div class="stat-group">
+      <div class="stat-group" :class="{ 'disabled-group': pointEndDisabled }">
         <div class="stat-label-center">Point End</div>
         <div class="stat-box-row">
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndSide' }" @click="activeCategory = 'pointEndSide'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndSide' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'pointEndSide')">
             <div class="stat-col">
               <div v-for="(opt, idx) in pointEndSideOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.pointEndSide === idx }"
-                   @click.stop="selections.pointEndSide = idx; activeCategory = 'pointEndSide'">
+                   :class="{ 'selected-row': selections.pointEndSide === idx && !pointEndDisabled }"
+                   @click.stop="!pointEndDisabled && (selections.pointEndSide = idx, activeCategory = 'pointEndSide')">
                 {{ opt }}
               </div>
             </div>
           </div>
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndType' }" @click="activeCategory = 'pointEndType'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndType' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'pointEndType')">
             <div class="stat-col">
               <div v-for="(opt, idx) in pointEndTypeOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.pointEndType === idx }"
-                   @click.stop="selections.pointEndType = idx; activeCategory = 'pointEndType'">
+                   :class="{ 'selected-row': selections.pointEndType === idx && !pointEndDisabled }"
+                   @click.stop="!pointEndDisabled && (selections.pointEndType = idx, activeCategory = 'pointEndType')">
                 {{ opt }}
               </div>
             </div>
           </div>
-          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndResult' }" @click="activeCategory = 'pointEndResult'">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndResult' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'pointEndResult')">
             <div class="stat-col">
               <div v-for="(opt, idx) in pointEndResultOptions" :key="opt"
                    class="stat-option"
-                   :class="{ 'selected-row': selections.pointEndResult === idx }"
-                   @click.stop="selections.pointEndResult = idx; activeCategory = 'pointEndResult'">
+                   :class="{ 'selected-row': selections.pointEndResult === idx && !pointEndDisabled }"
+                   @click.stop="!pointEndDisabled && (selections.pointEndResult = idx, activeCategory = 'pointEndResult')">
                 {{ opt }}
               </div>
             </div>
@@ -183,29 +194,29 @@
         </div>
       </div>
       <!-- Strategy: 1 box -->
-      <div class="stat-group">
+      <div class="stat-group" :class="{ 'disabled-group': pointEndDisabled }">
         <div class="stat-label-center">Strategy</div>
-        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'strategy' }" @click="activeCategory = 'strategy'">
+        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'strategy' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'strategy')">
           <div class="stat-col">
             <div v-for="(opt, idx) in strategyOptions" :key="opt"
                  class="stat-option"
-                 :class="{ 'selected-row': selections.strategy === idx }"
-                 @click.stop="selections.strategy = idx; activeCategory = 'strategy'">
+                 :class="{ 'selected-row': selections.strategy === idx && !pointEndDisabled }"
+                 @click.stop="!pointEndDisabled && (selections.strategy = idx, activeCategory = 'strategy')">
               {{ opt }}
             </div>
           </div>
         </div>
       </div>
       <!-- Serve & Volley: 1 box -->
-      <div class="stat-group">
+      <div class="stat-group" :class="{ 'disabled-group': serveVolleyDisabled }">
         <div class="stat-label-center">Serve &amp; Volley</div>
-        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' }" @click="activeCategory = 'serveVolley'">
+        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' && !serveVolleyDisabled, 'disabled-box': serveVolleyDisabled }" @click="!serveVolleyDisabled && (activeCategory = 'serveVolley')">
           <div class="stat-col">
-            <div v-for="(opt, idx) in serveVolleyOptions" :key="opt"
+            <div v-for="(opt, idx) in serveVolleyOptions" :key="idx"
                  class="stat-option"
-                 :class="{ 'selected-row': selections.serveVolley === idx }"
-                 @click.stop="selections.serveVolley = idx; activeCategory = 'serveVolley'">
-              {{ opt }}
+                 :class="{ 'selected-row': selections.serveVolley === idx && !serveVolleyDisabled }"
+                 @click.stop="!serveVolleyDisabled && (selections.serveVolley = idx, activeCategory = 'serveVolley')">
+              {{ opt || '\u00A0' }}
             </div>
           </div>
         </div>
@@ -223,7 +234,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -280,8 +291,84 @@ const pointWinnerOptions = [topPlayer, bottomPlayer];
 const pointEndSideOptions = ['Forehand', 'Backhand'];
 const pointEndTypeOptions = ['Ground', 'Pass', 'Approach', 'Lob', 'Drop', 'Overhead', 'Volley'];
 const pointEndResultOptions = ['Winner', 'Unforced', 'Forced'];
-const strategyOptions = ['Baseline', 'Top Player At Net', 'Bottom Player At Net', 'Both At Net'];
-const serveVolleyOptions = ['No Serve & Volley', 'Serve & Volley'];
+const strategyOptions = ['Baseline', `${topPlayer} At Net`, `${bottomPlayer} At Net`, 'Both At Net'];
+const serveVolleyOptions = ['', 'Serve & Volley'];
+
+// Confirmation popup state
+const showConfirmation = ref(false);
+
+// 2nd serve is disabled if 1st serve result is "In Play" (index 0), "Ace" (1), or "Winner" (2)
+// Only "Fault" (index 3) allows a 2nd serve
+const secondServeDisabled = computed(() => {
+  const firstResult = selections.value.firstServeResult;
+  return firstResult !== null && firstResult !== 3; // Not fault = no 2nd serve
+});
+
+// Return is disabled if:
+// - Serve result is "Ace" (1) or "Winner" (2) - server wins point
+// - 2nd serve result is "Fault" (3) - double fault, returner wins point
+const returnDisabled = computed(() => {
+  if (secondServeDisabled.value) {
+    // No 2nd serve, check 1st serve result
+    const firstResult = selections.value.firstServeResult;
+    return firstResult === 1 || firstResult === 2; // Ace or Winner
+  } else {
+    // 2nd serve happened, check 2nd serve result
+    const secondResult = selections.value.secondServeResult;
+    // Ace, Winner, or Fault (double fault) all skip return
+    return secondResult === 1 || secondResult === 2 || secondResult === 3;
+  }
+});
+
+// Get server index for point winner (0 = top player, 1 = bottom player)
+const serverIndex = computed(() => {
+  return server.value === topPlayer ? 0 : 1;
+});
+
+// Get returner index (opposite of server)
+const returnerIndex = computed(() => {
+  return server.value === topPlayer ? 1 : 0;
+});
+
+// Point End is disabled if return result is "Winner" (1), "Unforced" (2), or "Forced" (3)
+// Also disabled if return itself is disabled (ace/winner/double fault)
+const pointEndDisabled = computed(() => {
+  if (returnDisabled.value) {
+    return true;
+  }
+  const returnResult = selections.value.returnResult;
+  // Winner (1), Unforced (2), or Forced (3) all end the point on return
+  return returnResult === 1 || returnResult === 2 || returnResult === 3;
+});
+
+// Serve & Volley is disabled when:
+// - Double fault (2nd serve result is Fault)
+// - Serve is Ace or Winner (1st or 2nd serve)
+const serveVolleyDisabled = computed(() => {
+  const firstResult = selections.value.firstServeResult;
+  const secondResult = selections.value.secondServeResult;
+  
+  // If 1st serve was Ace (1) or Winner (2), disable
+  if (firstResult === 1 || firstResult === 2) {
+    return true;
+  }
+  
+  // If 2nd serve happened (1st was fault)
+  if (!secondServeDisabled.value) {
+    // Double fault (Fault = 3) or Ace (1) or Winner (2)
+    if (secondResult === 1 || secondResult === 2 || secondResult === 3) {
+      return true;
+    }
+  }
+  
+  return false;
+});
+
+// Get the name of the point winner for confirmation popup
+const confirmationWinnerName = computed(() => {
+  const winnerIndex = selections.value.pointWinner ?? 0;
+  return pointWinnerOptions[winnerIndex];
+});
 
 // Current active category (for keyboard navigation)
 const activeCategory = ref<StatCategory>('firstServeLocation');
@@ -356,9 +443,91 @@ function getSetScore(player: 'top' | 'bottom', colIndex: number): string | numbe
   return '';
 }
 
+// Auto-select "Serve & Volley" if return type is Pass (1) or Lob (3)
+function autoSelectServeVolleyIfNeeded() {
+  const returnType = selections.value.returnType;
+  if (returnType === 1 || returnType === 3) {
+    // Pass or Lob - auto-select Serve & Volley (index 1)
+    selections.value.serveVolley = 1;
+  }
+}
+
+// Auto-select strategy based on point end type, result, and winner
+// pointEndType: 1 = 'Pass', 2 = 'Approach', 3 = 'Lob', 5 = 'Overhead', 6 = 'Volley'
+// pointEndResult: 0 = 'Winner', 1 = 'Unforced', 2 = 'Forced'
+// strategy: 1 = topPlayer At Net, 2 = bottomPlayer At Net
+function autoSelectStrategyIfNeeded() {
+  // Use 0 as default for null (unvisited) values
+  const pointEndType = selections.value.pointEndType ?? 0;
+  const pointEndResult = selections.value.pointEndResult ?? 0;
+  const pointWinner = selections.value.pointWinner ?? 0;
+  
+  // Pass (1) or Lob (3): opponent was at net
+  const isPassOrLob = pointEndType === 1 || pointEndType === 3;
+  // Approach (2), Overhead (5), Volley (6): player hitting was at net
+  const isNetShot = pointEndType === 2 || pointEndType === 5 || pointEndType === 6;
+  
+  if (!isPassOrLob && !isNetShot) return;
+  
+  if (isPassOrLob) {
+    // Pass/Lob logic: opponent was at net
+    if (pointEndResult === 0) {
+      // Winner - the player at net lost the point (got passed/lobbed)
+      if (pointWinner === 0) {
+        // Top player won with a passing/lob winner → Bottom was at net
+        selections.value.strategy = 2; // bottomPlayer At Net
+      } else if (pointWinner === 1) {
+        // Bottom player won with a passing/lob winner → Top was at net
+        selections.value.strategy = 1; // topPlayer At Net
+      }
+    } else if (pointEndResult === 1 || pointEndResult === 2) {
+      // Unforced or Forced error - the player who made the error was passing/lobbing, opponent was at net
+      if (pointWinner === 0) {
+        // Top player won → Bottom made passing/lob error → Top was at net
+        selections.value.strategy = 1; // topPlayer At Net
+      } else if (pointWinner === 1) {
+        // Bottom player won → Top made passing/lob error → Bottom was at net
+        selections.value.strategy = 2; // bottomPlayer At Net
+      }
+    }
+  } else if (isNetShot) {
+    // Approach/Overhead/Volley logic: player hitting was at net
+    if (pointEndResult === 0) {
+      // Winner - the player at net won with an approach/overhead/volley winner
+      if (pointWinner === 0) {
+        // Top player won with net shot winner → Top was at net
+        selections.value.strategy = 1; // topPlayer At Net
+      } else if (pointWinner === 1) {
+        // Bottom player won with net shot winner → Bottom was at net
+        selections.value.strategy = 2; // bottomPlayer At Net
+      }
+    } else if (pointEndResult === 1 || pointEndResult === 2) {
+      // Unforced or Forced error - the player attempting the net shot made an error
+      if (pointWinner === 0) {
+        // Top player won → Bottom made net shot error → Bottom was at net
+        selections.value.strategy = 2; // bottomPlayer At Net
+      } else if (pointWinner === 1) {
+        // Bottom player won → Top made net shot error → Top was at net
+        selections.value.strategy = 1; // topPlayer At Net
+      }
+    }
+  }
+}
+
 function handleKey(e: KeyboardEvent) {
   // Don't allow input after match is over
   if (matchWinner.value) {
+    return;
+  }
+  
+  // Handle confirmation popup separately
+  if (showConfirmation.value) {
+    if (e.key === 'Enter') {
+      confirmPoint();
+    } else if (e.key === 'Escape') {
+      cancelConfirmation();
+    }
+    // Block all other keys when confirmation is showing
     return;
   }
   
@@ -394,30 +563,201 @@ function handleKey(e: KeyboardEvent) {
     }
   } else if (e.key === 'ArrowRight') {
     e.preventDefault();
-    // Move to next category
-    const nextIndex = (currentIndex + 1) % statCategories.length;
-    const nextCategory = statCategories[nextIndex]!;
-    activeCategory.value = nextCategory;
-    // If entering a box for the first time, set selection to 0 (first option)
-    if (selections.value[nextCategory] === null) {
-      selections.value[nextCategory] = 0;
+    // Check if leaving a serve location box with "In Net" selected
+    // If so, auto-set result to "Fault" and skip to next box after result
+    if (activeCategory.value === 'firstServeLocation' && selections.value.firstServeLocation === 3) {
+      // "In Net" selected - auto-set result to "Fault" (index 3) and skip to secondServeLocation
+      selections.value.firstServeResult = 3;
+      activeCategory.value = 'secondServeLocation';
+      if (selections.value.secondServeLocation === null) {
+        selections.value.secondServeLocation = 0;
+      }
+    } else if (activeCategory.value === 'firstServeResult' && secondServeDisabled.value) {
+      // 1st serve was in play/ace/winner - skip 2nd serve
+      // If ace or winner, also skip return and auto-select server as point winner
+      const firstResult = selections.value.firstServeResult;
+      if (firstResult === 1 || firstResult === 2) {
+        // Ace or Winner - skip to pointWinner, auto-select server
+        selections.value.pointWinner = serverIndex.value;
+        activeCategory.value = 'pointWinner';
+      } else {
+        // In Play - go to returnSide
+        activeCategory.value = 'returnSide';
+        if (selections.value.returnSide === null) {
+          selections.value.returnSide = 0;
+        }
+      }
+    } else if (activeCategory.value === 'secondServeLocation' && selections.value.secondServeLocation === 3) {
+      // "In Net" selected - auto-set result to "Fault" (double fault)
+      // Skip return, auto-select returner as point winner
+      selections.value.secondServeResult = 3;
+      selections.value.pointWinner = returnerIndex.value;
+      activeCategory.value = 'pointWinner';
+    } else if (activeCategory.value === 'secondServeResult') {
+      // Check 2nd serve result
+      const secondResult = selections.value.secondServeResult;
+      if (secondResult === 1 || secondResult === 2) {
+        // Ace or Winner - skip return, auto-select server
+        selections.value.pointWinner = serverIndex.value;
+        activeCategory.value = 'pointWinner';
+      } else if (secondResult === 3) {
+        // Fault (double fault) - skip return, auto-select returner
+        selections.value.pointWinner = returnerIndex.value;
+        activeCategory.value = 'pointWinner';
+      } else {
+        // In Play - normal navigation to returnSide
+        activeCategory.value = 'returnSide';
+        if (selections.value.returnSide === null) {
+          selections.value.returnSide = 0;
+        }
+      }
+    } else if (activeCategory.value === 'returnType') {
+      // Auto-select Serve & Volley if return type is Pass or Lob when leaving this box
+      autoSelectServeVolleyIfNeeded();
+      // Normal navigation to returnResult
+      activeCategory.value = 'returnResult';
+      if (selections.value.returnResult === null) {
+        selections.value.returnResult = 0;
+      }
+    } else if (activeCategory.value === 'returnResult') {
+      // Check if return result is Winner - skip point end, auto-select returner
+      const returnResult = selections.value.returnResult;
+      if (returnResult === 1) {
+        // Winner - skip point end, auto-select returner
+        selections.value.pointWinner = returnerIndex.value;
+        activeCategory.value = 'pointWinner';
+      } else {
+        // In Play, Unforced, or Forced - normal navigation to pointWinner
+        const nextIndex = (currentIndex + 1) % statCategories.length;
+        const nextCategory = statCategories[nextIndex]!;
+        activeCategory.value = nextCategory;
+        if (selections.value[nextCategory] === null) {
+          selections.value[nextCategory] = 0;
+        }
+      }
+    } else if (activeCategory.value === 'strategy') {
+      // If moving from strategy to serveVolley but serveVolley is disabled, wrap to firstServeLocation
+      if (serveVolleyDisabled.value) {
+        activeCategory.value = 'firstServeLocation';
+        selections.value.firstServeLocation = 0;
+      } else {
+        activeCategory.value = 'serveVolley';
+        if (selections.value.serveVolley === null) {
+          selections.value.serveVolley = 0;
+        }
+      }
+    } else if (activeCategory.value === 'pointEndResult') {
+      // Auto-select strategy based on point end type (Pass) and result when exiting pointEndResult
+      autoSelectStrategyIfNeeded();
+      // Normal navigation to strategy
+      activeCategory.value = 'strategy';
+      if (selections.value.strategy === null) {
+        selections.value.strategy = 0;
+      }
+    } else {
+      // Normal navigation - move to next category
+      const nextIndex = (currentIndex + 1) % statCategories.length;
+      const nextCategory = statCategories[nextIndex]!;
+      activeCategory.value = nextCategory;
+      // If entering a box for the first time, set selection to 0 (first option)
+      if (selections.value[nextCategory] === null) {
+        selections.value[nextCategory] = 0;
+      }
     }
   } else if (e.key === 'ArrowLeft') {
     e.preventDefault();
-    // Move to previous category
-    const prevIndex = (currentIndex - 1 + statCategories.length) % statCategories.length;
-    const prevCategory = statCategories[prevIndex]!;
-    activeCategory.value = prevCategory;
-    // If entering a box for the first time, set selection to 0 (first option)
-    if (selections.value[prevCategory] === null) {
-      selections.value[prevCategory] = 0;
+    // Auto-select Serve & Volley if leaving return area with Pass or Lob selected
+    if (activeCategory.value === 'returnSide' || activeCategory.value === 'returnResult') {
+      autoSelectServeVolleyIfNeeded();
+    }
+    // Auto-select strategy if leaving strategy box (may have edited point end values)
+    if (activeCategory.value === 'strategy') {
+      autoSelectStrategyIfNeeded();
+    }
+    // If at pointWinner and point end is disabled due to return winner, skip back to returnResult
+    if (activeCategory.value === 'pointWinner' && pointEndDisabled.value && !returnDisabled.value) {
+      activeCategory.value = 'returnResult';
+    } else if (activeCategory.value === 'pointWinner' && returnDisabled.value) {
+      // If return is disabled, skip back to serve result
+      if (secondServeDisabled.value) {
+        activeCategory.value = 'firstServeResult';
+      } else {
+        activeCategory.value = 'secondServeResult';
+      }
+    } else if (activeCategory.value === 'returnSide' && secondServeDisabled.value) {
+      // If at returnSide and 2nd serve is disabled, skip back to firstServeResult
+      activeCategory.value = 'firstServeResult';
+    } else if (activeCategory.value === 'firstServeLocation' && serveVolleyDisabled.value) {
+      // If at first box and serveVolley is disabled, skip back to strategy
+      activeCategory.value = 'strategy';
+    } else {
+      // Normal navigation - move to previous category
+      const prevIndex = (currentIndex - 1 + statCategories.length) % statCategories.length;
+      const prevCategory = statCategories[prevIndex]!;
+      activeCategory.value = prevCategory;
+      // If entering a box for the first time, set selection to 0 (first option)
+      if (selections.value[prevCategory] === null) {
+        selections.value[prevCategory] = 0;
+      }
     }
   } else if (e.key === 'Enter') {
-    submitPoint();
+    // Check if at serve result with Ace or Winner - auto-select server as point winner
+    const isFirstServeAceOrWinner = activeCategory.value === 'firstServeResult' && 
+      (selections.value.firstServeResult === 1 || selections.value.firstServeResult === 2);
+    const isSecondServeAceOrWinner = activeCategory.value === 'secondServeResult' && 
+      (selections.value.secondServeResult === 1 || selections.value.secondServeResult === 2);
+    
+    // Check if at 2nd serve location with "In Net" selected - double fault, returner wins
+    const isSecondServeInNet = activeCategory.value === 'secondServeLocation' && 
+      selections.value.secondServeLocation === 3;
+    
+    // Check if at 2nd serve result with "Fault" selected - double fault, returner wins
+    const isSecondServeFault = activeCategory.value === 'secondServeResult' && 
+      selections.value.secondServeResult === 3;
+    
+    // Check if at return result with "Winner" selected - returner wins
+    const isReturnWinner = activeCategory.value === 'returnResult' && 
+      selections.value.returnResult === 1;
+    
+    // Check if at return result with "Unforced" (2) or "Forced" (3) selected - server wins
+    const isReturnError = activeCategory.value === 'returnResult' && 
+      (selections.value.returnResult === 2 || selections.value.returnResult === 3);
+    
+    // Auto-select Serve & Volley if return type is Pass or Lob
+    autoSelectServeVolleyIfNeeded();
+    
+    if (isFirstServeAceOrWinner || isSecondServeAceOrWinner || isReturnError) {
+      // Auto-select server as point winner
+      selections.value.pointWinner = serverIndex.value;
+    } else if (isSecondServeInNet || isSecondServeFault || isReturnWinner) {
+      // Returner wins - double fault or return winner
+      if (isSecondServeInNet) {
+        selections.value.secondServeResult = 3; // Set result to Fault
+      }
+      selections.value.pointWinner = returnerIndex.value;
+    }
+    
+    // Auto-select strategy based on point end type (Pass) and result
+    autoSelectStrategyIfNeeded();
+    
+    // Show confirmation popup
+    showConfirmation.value = true;
   }
 }
 
-function submitPoint() {
+function confirmPoint() {
+  // Hide the confirmation popup
+  showConfirmation.value = false;
+  // Process the point
+  processPoint();
+}
+
+function cancelConfirmation() {
+  // Hide the confirmation popup, keep selections as-is for editing
+  showConfirmation.value = false;
+}
+
+function processPoint() {
   // Helper to get selection value (default to 0 if null/unvisited)
   const getSel = (cat: StatCategory) => selections.value[cat] ?? 0;
   
@@ -771,6 +1111,13 @@ onUnmounted(() => {
 .selected-row {
   background-color: #fff59d;
 }
+.disabled-group {
+  opacity: 0.4;
+}
+.disabled-box {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
 
 /* Match Winner Popup */
 .popup-overlay {
@@ -811,5 +1158,35 @@ onUnmounted(() => {
 }
 .home-btn:hover {
   background: #6d1d5f;
+}
+
+/* Confirmation popup buttons */
+.popup-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+.confirm-btn {
+  border: 2px solid #111;
+  padding: 10px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.yes-btn {
+  background: #8e267d;
+  color: #fff;
+  border-color: #8e267d;
+}
+.yes-btn:hover {
+  background: #6d1d5f;
+  border-color: #6d1d5f;
+}
+.no-btn {
+  background: #fff;
+  color: #111;
+}
+.no-btn:hover {
+  background: #f0f0f0;
 }
 </style>
