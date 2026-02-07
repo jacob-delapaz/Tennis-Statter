@@ -26,10 +26,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { ref, computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
+const router = useRouter();
 const matchType = route.params.matchType as string;
 const playersParam = route.query.players as string;
 let players: string[] = [];
@@ -61,6 +62,23 @@ function pickServer(player: string) {
     receiver.value = player === topPlayer ? bottomPlayer : topPlayer;
   }
 }
+
+// Watch for both server and receiver being set in singles, then navigate
+watch(
+  () => [server.value, receiver.value],
+  ([s, r]) => {
+    if (isSingles && s && r) {
+      router.push({
+        name: "SinglesStat",
+        query: {
+          topPlayer,
+          bottomPlayer,
+          server: s,
+        },
+      });
+    }
+  }
+);
 
 const receiverOptions = computed(() => {
   if (!server.value) return [];

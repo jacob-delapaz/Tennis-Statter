@@ -3,6 +3,7 @@ import HomeView from "../views/HomeView.vue";
 import ModeView from "../views/ModeView.vue";
 import EnterPlayersView from "../views/EnterPlayersView.vue";
 import ServeSelectionView from "../views/ServeSelectionView.vue";
+import SinglesStatView from "../views/SinglesStatView.vue";
 
 export default createRouter({
   history: createWebHistory(),
@@ -20,6 +21,11 @@ export default createRouter({
       name: "ServeSelection",
       component: ServeSelectionView,
       props: true,
+    },
+    {
+      path: "/singles-stat",
+      name: "SinglesStat",
+      component: SinglesStatView,
     },
   ],
 });
