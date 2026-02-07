@@ -20,6 +20,16 @@
       </div>
     </div>
 
+    <!-- Point Winner Error Popup -->
+    <div v-if="showPointWinnerError" class="popup-overlay">
+      <div class="popup-box">
+        <p>Point Winner Not Selected</p>
+        <div class="popup-buttons">
+          <button class="confirm-btn yes-btn" @click="dismissPointWinnerError">OK</button>
+        </div>
+      </div>
+    </div>
+
     <div class="page-label">Singles Stat View</div>
 
     <!-- Score Box (top-left) -->
@@ -297,6 +307,9 @@ const serveVolleyOptions = ['', 'Serve & Volley'];
 // Confirmation popup state
 const showConfirmation = ref(false);
 
+// Error popup state for point winner not selected
+const showPointWinnerError = ref(false);
+
 // 2nd serve is disabled if 1st serve result is "In Play" (index 0), "Ace" (1), or "Winner" (2)
 // Only "Fault" (index 3) allows a 2nd serve
 const secondServeDisabled = computed(() => {
@@ -520,6 +533,15 @@ function handleKey(e: KeyboardEvent) {
     return;
   }
   
+  // Handle error popup separately
+  if (showPointWinnerError.value) {
+    if (e.key === 'Enter' || e.key === 'Escape') {
+      dismissPointWinnerError();
+    }
+    // Block all other keys when error popup is showing
+    return;
+  }
+  
   // Handle confirmation popup separately
   if (showConfirmation.value) {
     if (e.key === 'Enter') {
@@ -740,9 +762,19 @@ function handleKey(e: KeyboardEvent) {
     // Auto-select strategy based on point end type (Pass) and result
     autoSelectStrategyIfNeeded();
     
+    // Validate that point winner is selected
+    if (selections.value.pointWinner === null) {
+      showPointWinnerError.value = true;
+      return;
+    }
+    
     // Show confirmation popup
     showConfirmation.value = true;
   }
+}
+
+function dismissPointWinnerError() {
+  showPointWinnerError.value = false;
 }
 
 function confirmPoint() {
@@ -1063,13 +1095,14 @@ onUnmounted(() => {
   color: #888;
 }
 .stat-col {
-  padding: 8px 12px;
+  padding: 0;
   border-right: 2px solid #111;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 0;
   font-size: 0.95rem;
   text-align: center;
+  flex: 1;
 }
 .stat-col:last-child {
   border-right: none;
@@ -1095,7 +1128,9 @@ onUnmounted(() => {
 }
 .stat-option {
   cursor: pointer;
-  padding: 2px 0;
+  padding: 4px 12px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .stat-option:hover,
 .point-winner-option:hover {
