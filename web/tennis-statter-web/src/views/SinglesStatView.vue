@@ -14,7 +14,10 @@
     <!-- Score Box (top-left) -->
     <div class="score-box">
       <div class="score-row">
-        <div class="player-cell">{{ topPlayer }}</div>
+        <div class="player-cell">
+          <span v-if="server === topPlayer" class="dot">●</span>
+          {{ topPlayer }}
+        </div>
         <div class="score-cell">{{ inTiebreak ? topTiebreakPoints : pointScores[topPoint] }}</div>
         <div class="score-cell">{{ getSetScore('top', 0) }}</div>
         <div class="score-cell">{{ getSetScore('top', 1) }}</div>
@@ -39,74 +42,85 @@
 
     <!-- Stat Entry Row 1 -->
     <div class="stat-row">
+      <!-- 1st Serve: 2 boxes -->
       <div class="stat-group">
-        <div class="stat-label">1st Serve</div>
-        <div class="stat-box">
-          <div class="stat-col">
-            <div>Wide</div>
-            <div>Body</div>
-            <div>Center</div>
-            <div>In Net</div>
-          </div>
-          <div class="stat-col">
-            <div>In Play</div>
-            <div>Ace</div>
-            <div>Winner</div>
-            <div>Fault</div>
-          </div>
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-label">2nd Serve</div>
-        <div class="stat-box">
-          <div class="stat-col">
-            <div>Wide</div>
-            <div>Body</div>
-            <div>Center</div>
-            <div>In Net</div>
-          </div>
-          <div class="stat-col">
-            <div>In Play</div>
-            <div>Ace</div>
-            <div>Winner</div>
-            <div>Fault</div>
-          </div>
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-box stat-box-single">
-          <div class="stat-col">
-            <div>Forehand</div>
-            <div>Backhand</div>
-          </div>
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-label">Return</div>
-        <div class="stat-box">
-          <div class="stat-col">
-            <div>Ground</div>
-            <div>Pass</div>
-            <div>Approach</div>
-            <div>Lob</div>
-            <div>Drop</div>
-          </div>
-          <div class="stat-col">
-            <div>In Play</div>
-            <div>Winner</div>
-            <div>Unforced</div>
-            <div>Forced</div>
-          </div>
-        </div>
-      </div>
-      <div class="stat-group">
-        <div class="stat-label">Point Winner</div>
-        <div class="stat-box stat-box-single">
-          <div class="stat-col">
-            <div v-for="(option, idx) in pointWinnerOptions" :key="option">
-              <span v-if="idx === selectedWinner">&gt; </span>
-              <span :class="{ selected: idx === selectedWinner }">{{ option }}</span>
+        <div class="stat-label-center">1st Serve</div>
+        <div class="stat-box-row">
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Wide</div>
+              <div>Body</div>
+              <div>Center</div>
+              <div>In Net</div>
             </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>In Play</div>
+              <div>Ace</div>
+              <div>Winner</div>
+              <div>Fault</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 2nd Serve: 2 boxes -->
+      <div class="stat-group">
+        <div class="stat-label-center">2nd Serve</div>
+        <div class="stat-box-row">
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Wide</div>
+              <div>Body</div>
+              <div>Center</div>
+              <div>In Net</div>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>In Play</div>
+              <div>Ace</div>
+              <div>Winner</div>
+              <div>Fault</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Return: 3 boxes -->
+      <div class="stat-group">
+        <div class="stat-label-center">Return</div>
+        <div class="stat-box-row">
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Forehand</div>
+              <div>Backhand</div>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Ground</div>
+              <div>Pass</div>
+              <div>Approach</div>
+              <div>Lob</div>
+              <div>Drop</div>
+            </div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>In Play</div>
+              <div>Winner</div>
+              <div>Unforced</div>
+              <div>Forced</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Point Winner: 1 box -->
+      <div class="stat-group">
+        <div class="stat-label-center">Point Winner</div>
+        <div class="stat-box point-winner-box">
+          <div v-for="(option, idx) in pointWinnerOptions" :key="option" class="point-winner-option" :class="{ 'selected-row': idx === selectedWinner }">
+            {{ option }}
           </div>
         </div>
       </div>
@@ -114,27 +128,33 @@
 
     <!-- Stat Entry Row 2 -->
     <div class="stat-row">
+      <!-- Point End: 2 boxes -->
       <div class="stat-group">
-        <div class="stat-label">Point End</div>
-        <div class="stat-box">
-          <div class="stat-col">
-            <div>Forehand</div>
-            <div>Backhand</div>
+        <div class="stat-label-center">Point End</div>
+        <div class="stat-box-row">
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Forehand</div>
+              <div>Backhand</div>
+            </div>
           </div>
-          <div class="stat-col">
-            <div>Ground</div>
-            <div>Pass</div>
-            <div>Approach</div>
-            <div>Lob</div>
-            <div>Drop</div>
-            <div>Overhead</div>
-            <div>Volley</div>
+          <div class="stat-box">
+            <div class="stat-col">
+              <div>Ground</div>
+              <div>Pass</div>
+              <div>Approach</div>
+              <div>Lob</div>
+              <div>Drop</div>
+              <div>Overhead</div>
+              <div>Volley</div>
+            </div>
           </div>
         </div>
       </div>
+      <!-- Strategy: 1 box -->
       <div class="stat-group">
-        <div class="stat-label">Strategy</div>
-        <div class="stat-box stat-box-single">
+        <div class="stat-label-center">Strategy</div>
+        <div class="stat-box">
           <div class="stat-col">
             <div>Baseline</div>
             <div>Top Player At Net</div>
@@ -143,16 +163,19 @@
           </div>
         </div>
       </div>
+      <!-- Serve & Volley: 1 box -->
       <div class="stat-group">
-        <div class="stat-label">Serve &amp; Volley</div>
-        <div class="stat-box stat-box-single">
+        <div class="stat-label-center">Serve &amp; Volley</div>
+        <div class="stat-box">
           <div class="stat-col">
             <div>No Serve &amp; Volley</div>
             <div>Serve &amp; Volley</div>
           </div>
         </div>
       </div>
+      <!-- Summary Stats: 1 box -->
       <div class="stat-group">
+        <div class="stat-label-center">&nbsp;</div>
         <div class="stat-box stat-box-summary">
           <div>Summary Stats So Far</div>
         </div>
@@ -169,7 +192,10 @@ const route = useRoute();
 const router = useRouter();
 const topPlayer = route.query.topPlayer as string || 'Top Player';
 const bottomPlayer = route.query.bottomPlayer as string || 'Bottom Player';
-const server = route.query.server as string || '';
+const initialServer = route.query.server as string || '';
+
+// Current server (alternates each game)
+const server = ref(initialServer);
 
 const matchWinner = ref<string | null>(null);
 
@@ -186,6 +212,7 @@ const currentSet = ref(1);
 const inTiebreak = ref(false);
 const topTiebreakPoints = ref(0);
 const bottomTiebreakPoints = ref(0);
+const tiebreakFirstServer = ref<string | null>(null);
 
 const pointWinnerOptions = ['Top Player', 'Bottom Player'];
 const selectedWinner = ref(0);
@@ -199,7 +226,11 @@ function getSetScore(player: 'top' | 'bottom', colIndex: number): string | numbe
   
   // If this column has a completed set, show it
   if (colIndex < sets.length) {
-    return sets[colIndex];
+    return sets[colIndex] ?? '';
+  }
+  // If match is over, don't show live games for unplayed sets
+  if (matchWinner.value) {
+    return '';
   }
   // If this is the current set column (immediately after completed sets), show live games
   if (colIndex === sets.length) {
@@ -210,6 +241,11 @@ function getSetScore(player: 'top' | 'bottom', colIndex: number): string | numbe
 }
 
 function handleKey(e: KeyboardEvent) {
+  // Don't allow input after match is over
+  if (matchWinner.value) {
+    return;
+  }
+  
   if (e.key === 'ArrowDown') {
     selectedWinner.value = (selectedWinner.value + 1) % pointWinnerOptions.length;
   } else if (e.key === 'ArrowUp') {
@@ -226,6 +262,11 @@ function submitPointWinner() {
       topTiebreakPoints.value++;
     } else {
       bottomTiebreakPoints.value++;
+    }
+    // Tiebreak serve switching: first serve is 1 point, then alternate every 2 points
+    const totalPoints = topTiebreakPoints.value + bottomTiebreakPoints.value;
+    if (totalPoints === 1 || (totalPoints > 1 && (totalPoints - 1) % 2 === 0)) {
+      switchServer();
     }
     checkTiebreakWin();
   } else {
@@ -266,8 +307,13 @@ function updateScore(
   }
 }
 
-function winGame(myGames: { value: number }, oppGames: { value: number }) {
+function switchServer() {
+  server.value = server.value === topPlayer ? bottomPlayer : topPlayer;
+}
+
+function winGame(myGames: { value: number }, _oppGames: { value: number }) {
   myGames.value++;
+  switchServer(); // Server alternates after each game
   checkSetWin();
 }
 
@@ -280,6 +326,7 @@ function checkSetWin() {
     inTiebreak.value = true;
     topTiebreakPoints.value = 0;
     bottomTiebreakPoints.value = 0;
+    tiebreakFirstServer.value = server.value; // Remember who serves first in tiebreak
     return;
   }
 
@@ -310,14 +357,14 @@ function checkTiebreakWin() {
   }
 }
 
-function winSet(winner: 'top' | 'bottom') {
+function winSet(_winner: 'top' | 'bottom') {
   // Store completed set scores
   topSets.value.push(topGames.value);
   bottomSets.value.push(bottomGames.value);
 
   // Check if match is won (best of 3 = first to 2 sets)
-  const topSetsWon = topSets.value.filter((s, i) => s > bottomSets.value[i]).length;
-  const bottomSetsWon = bottomSets.value.filter((s, i) => s > topSets.value[i]).length;
+  const topSetsWon = topSets.value.filter((s, i) => s > (bottomSets.value[i] ?? 0)).length;
+  const bottomSetsWon = bottomSets.value.filter((s, i) => s > (topSets.value[i] ?? 0)).length;
 
   if (topSetsWon >= 2) {
     matchWinner.value = topPlayer;
@@ -333,9 +380,16 @@ function winSet(winner: 'top' | 'bottom') {
   bottomGames.value = 0;
   topPoint.value = 0;
   bottomPoint.value = 0;
+  
+  // After a tiebreak, the player who served second in the tiebreak serves first in the next set
+  if (inTiebreak.value && tiebreakFirstServer.value) {
+    server.value = tiebreakFirstServer.value === topPlayer ? bottomPlayer : topPlayer;
+  }
+  
   inTiebreak.value = false;
   topTiebreakPoints.value = 0;
   bottomTiebreakPoints.value = 0;
+  tiebreakFirstServer.value = null;
   currentSet.value++;
 }
 
@@ -373,7 +427,7 @@ onUnmounted(() => {
   display: flex;
 }
 .player-cell {
-  min-width: 120px;
+  min-width: 160px;
   padding: 8px 12px;
   border-right: 2px solid #111;
   display: flex;
@@ -420,29 +474,41 @@ onUnmounted(() => {
 .stat-row {
   display: flex;
   gap: 0;
-  margin-bottom: 0;
+  margin-bottom: 24px;
+  align-items: stretch;
+  width: 100%;
 }
 .stat-group {
   display: flex;
   flex-direction: column;
+}
+.stat-group:last-child {
+  flex: 1;
 }
 .stat-label {
   font-size: 0.95rem;
   font-weight: 600;
   margin-bottom: 4px;
   padding-left: 4px;
+  min-height: 20px;
+}
+.stat-label-center {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  min-height: 20px;
+  text-align: center;
 }
 .stat-box {
   display: flex;
   border: 2px solid #111;
-  min-height: 80px;
+  flex: 1;
 }
 .stat-box-single {
   min-width: 100px;
 }
 .stat-box-summary {
   min-width: 180px;
-  min-height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -455,13 +521,31 @@ onUnmounted(() => {
   flex-direction: column;
   gap: 2px;
   font-size: 0.95rem;
+  text-align: center;
 }
 .stat-col:last-child {
   border-right: none;
 }
-.selected {
-  font-weight: bold;
-  color: #8e267d;
+.stat-box-row {
+  display: flex;
+  gap: 0;
+  flex: 1;
+  align-items: stretch;
+}
+.stat-box-row .stat-box {
+  flex: none;
+}
+.point-winner-box {
+  flex-direction: column;
+  padding: 0;
+}
+.point-winner-option {
+  padding: 4px 12px;
+  font-size: 0.95rem;
+  text-align: center;
+}
+.selected-row {
+  background-color: #fff59d;
 }
 
 /* Match Winner Popup */
