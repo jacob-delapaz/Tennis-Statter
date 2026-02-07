@@ -46,20 +46,24 @@
       <div class="stat-group">
         <div class="stat-label-center">1st Serve</div>
         <div class="stat-box-row">
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'firstServeLocation' }" @click="activeCategory = 'firstServeLocation'">
             <div class="stat-col">
-              <div>Wide</div>
-              <div>Body</div>
-              <div>Center</div>
-              <div>In Net</div>
+              <div v-for="(opt, idx) in serveLocationOptions" :key="opt" 
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.firstServeLocation === idx }"
+                   @click.stop="selections.firstServeLocation = idx; activeCategory = 'firstServeLocation'">
+                {{ opt }}
+              </div>
             </div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'firstServeResult' }" @click="activeCategory = 'firstServeResult'">
             <div class="stat-col">
-              <div>In Play</div>
-              <div>Ace</div>
-              <div>Winner</div>
-              <div>Fault</div>
+              <div v-for="(opt, idx) in serveResultOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.firstServeResult === idx }"
+                   @click.stop="selections.firstServeResult = idx; activeCategory = 'firstServeResult'">
+                {{ opt }}
+              </div>
             </div>
           </div>
         </div>
@@ -68,20 +72,24 @@
       <div class="stat-group">
         <div class="stat-label-center">2nd Serve</div>
         <div class="stat-box-row">
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeLocation' }" @click="activeCategory = 'secondServeLocation'">
             <div class="stat-col">
-              <div>Wide</div>
-              <div>Body</div>
-              <div>Center</div>
-              <div>In Net</div>
+              <div v-for="(opt, idx) in serveLocationOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.secondServeLocation === idx }"
+                   @click.stop="selections.secondServeLocation = idx; activeCategory = 'secondServeLocation'">
+                {{ opt }}
+              </div>
             </div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'secondServeResult' }" @click="activeCategory = 'secondServeResult'">
             <div class="stat-col">
-              <div>In Play</div>
-              <div>Ace</div>
-              <div>Winner</div>
-              <div>Fault</div>
+              <div v-for="(opt, idx) in serveResultOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.secondServeResult === idx }"
+                   @click.stop="selections.secondServeResult = idx; activeCategory = 'secondServeResult'">
+                {{ opt }}
+              </div>
             </div>
           </div>
         </div>
@@ -90,27 +98,34 @@
       <div class="stat-group">
         <div class="stat-label-center">Return</div>
         <div class="stat-box-row">
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnSide' }" @click="activeCategory = 'returnSide'">
             <div class="stat-col">
-              <div>Forehand</div>
-              <div>Backhand</div>
+              <div v-for="(opt, idx) in returnSideOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.returnSide === idx }"
+                   @click.stop="selections.returnSide = idx; activeCategory = 'returnSide'">
+                {{ opt }}
+              </div>
             </div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnType' }" @click="activeCategory = 'returnType'">
             <div class="stat-col">
-              <div>Ground</div>
-              <div>Pass</div>
-              <div>Approach</div>
-              <div>Lob</div>
-              <div>Drop</div>
+              <div v-for="(opt, idx) in returnTypeOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.returnType === idx }"
+                   @click.stop="selections.returnType = idx; activeCategory = 'returnType'">
+                {{ opt }}
+              </div>
             </div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'returnResult' }" @click="activeCategory = 'returnResult'">
             <div class="stat-col">
-              <div>In Play</div>
-              <div>Winner</div>
-              <div>Unforced</div>
-              <div>Forced</div>
+              <div v-for="(opt, idx) in returnResultOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.returnResult === idx }"
+                   @click.stop="selections.returnResult = idx; activeCategory = 'returnResult'">
+                {{ opt }}
+              </div>
             </div>
           </div>
         </div>
@@ -118,8 +133,11 @@
       <!-- Point Winner: 1 box -->
       <div class="stat-group">
         <div class="stat-label-center">Point Winner</div>
-        <div class="stat-box point-winner-box">
-          <div v-for="(option, idx) in pointWinnerOptions" :key="option" class="point-winner-option" :class="{ 'selected-row': idx === selectedWinner }">
+        <div class="stat-box point-winner-box selectable-box" :class="{ 'active-box': activeCategory === 'pointWinner' }" @click="activeCategory = 'pointWinner'">
+          <div v-for="(option, idx) in pointWinnerOptions" :key="option" 
+               class="point-winner-option"
+               :class="{ 'selected-row': idx === selections.pointWinner }"
+               @click.stop="selections.pointWinner = idx; activeCategory = 'pointWinner'">
             {{ option }}
           </div>
         </div>
@@ -132,21 +150,34 @@
       <div class="stat-group">
         <div class="stat-label-center">Point End</div>
         <div class="stat-box-row">
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndSide' }" @click="activeCategory = 'pointEndSide'">
             <div class="stat-col">
-              <div>Forehand</div>
-              <div>Backhand</div>
+              <div v-for="(opt, idx) in pointEndSideOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.pointEndSide === idx }"
+                   @click.stop="selections.pointEndSide = idx; activeCategory = 'pointEndSide'">
+                {{ opt }}
+              </div>
             </div>
           </div>
-          <div class="stat-box">
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndType' }" @click="activeCategory = 'pointEndType'">
             <div class="stat-col">
-              <div>Ground</div>
-              <div>Pass</div>
-              <div>Approach</div>
-              <div>Lob</div>
-              <div>Drop</div>
-              <div>Overhead</div>
-              <div>Volley</div>
+              <div v-for="(opt, idx) in pointEndTypeOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.pointEndType === idx }"
+                   @click.stop="selections.pointEndType = idx; activeCategory = 'pointEndType'">
+                {{ opt }}
+              </div>
+            </div>
+          </div>
+          <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'pointEndResult' }" @click="activeCategory = 'pointEndResult'">
+            <div class="stat-col">
+              <div v-for="(opt, idx) in pointEndResultOptions" :key="opt"
+                   class="stat-option"
+                   :class="{ 'selected-row': selections.pointEndResult === idx }"
+                   @click.stop="selections.pointEndResult = idx; activeCategory = 'pointEndResult'">
+                {{ opt }}
+              </div>
             </div>
           </div>
         </div>
@@ -154,22 +185,28 @@
       <!-- Strategy: 1 box -->
       <div class="stat-group">
         <div class="stat-label-center">Strategy</div>
-        <div class="stat-box">
+        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'strategy' }" @click="activeCategory = 'strategy'">
           <div class="stat-col">
-            <div>Baseline</div>
-            <div>Top Player At Net</div>
-            <div>Bottom Player At Net</div>
-            <div>Both At Net</div>
+            <div v-for="(opt, idx) in strategyOptions" :key="opt"
+                 class="stat-option"
+                 :class="{ 'selected-row': selections.strategy === idx }"
+                 @click.stop="selections.strategy = idx; activeCategory = 'strategy'">
+              {{ opt }}
+            </div>
           </div>
         </div>
       </div>
       <!-- Serve & Volley: 1 box -->
       <div class="stat-group">
         <div class="stat-label-center">Serve &amp; Volley</div>
-        <div class="stat-box">
+        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' }" @click="activeCategory = 'serveVolley'">
           <div class="stat-col">
-            <div>No Serve &amp; Volley</div>
-            <div>Serve &amp; Volley</div>
+            <div v-for="(opt, idx) in serveVolleyOptions" :key="opt"
+                 class="stat-option"
+                 :class="{ 'selected-row': selections.serveVolley === idx }"
+                 @click.stop="selections.serveVolley = idx; activeCategory = 'serveVolley'">
+              {{ opt }}
+            </div>
           </div>
         </div>
       </div>
@@ -214,8 +251,87 @@ const topTiebreakPoints = ref(0);
 const bottomTiebreakPoints = ref(0);
 const tiebreakFirstServer = ref<string | null>(null);
 
-const pointWinnerOptions = ['Top Player', 'Bottom Player'];
-const selectedWinner = ref(0);
+// Stat categories and their options
+const statCategories = [
+  'firstServeLocation',
+  'firstServeResult',
+  'secondServeLocation', 
+  'secondServeResult',
+  'returnSide',
+  'returnType',
+  'returnResult',
+  'pointWinner',
+  'pointEndSide',
+  'pointEndType',
+  'pointEndResult',
+  'strategy',
+  'serveVolley'
+] as const;
+
+type StatCategory = typeof statCategories[number];
+
+// Options for each category
+const serveLocationOptions = ['Wide', 'Body', 'Center', 'In Net'];
+const serveResultOptions = ['In Play', 'Ace', 'Winner', 'Fault'];
+const returnSideOptions = ['Forehand', 'Backhand'];
+const returnTypeOptions = ['Ground', 'Pass', 'Approach', 'Lob', 'Drop'];
+const returnResultOptions = ['In Play', 'Winner', 'Unforced', 'Forced'];
+const pointWinnerOptions = [topPlayer, bottomPlayer];
+const pointEndSideOptions = ['Forehand', 'Backhand'];
+const pointEndTypeOptions = ['Ground', 'Pass', 'Approach', 'Lob', 'Drop', 'Overhead', 'Volley'];
+const pointEndResultOptions = ['Winner', 'Unforced', 'Forced'];
+const strategyOptions = ['Baseline', 'Top Player At Net', 'Bottom Player At Net', 'Both At Net'];
+const serveVolleyOptions = ['No Serve & Volley', 'Serve & Volley'];
+
+// Current active category (for keyboard navigation)
+const activeCategory = ref<StatCategory>('firstServeLocation');
+
+// Selection state for each category (null = not yet visited/selected)
+const selections = ref<Record<StatCategory, number | null>>({
+  firstServeLocation: 0,  // Start with first box selected
+  firstServeResult: null,
+  secondServeLocation: null,
+  secondServeResult: null,
+  returnSide: null,
+  returnType: null,
+  returnResult: null,
+  pointWinner: null,
+  pointEndSide: null,
+  pointEndType: null,
+  pointEndResult: null,
+  strategy: null,
+  serveVolley: null
+});
+
+// Get options array for a category
+function getOptionsForCategory(category: StatCategory): string[] {
+  switch (category) {
+    case 'firstServeLocation':
+    case 'secondServeLocation':
+      return serveLocationOptions;
+    case 'firstServeResult':
+    case 'secondServeResult':
+      return serveResultOptions;
+    case 'returnSide':
+      return returnSideOptions;
+    case 'returnType':
+      return returnTypeOptions;
+    case 'returnResult':
+      return returnResultOptions;
+    case 'pointWinner':
+      return pointWinnerOptions;
+    case 'pointEndSide':
+      return pointEndSideOptions;
+    case 'pointEndType':
+      return pointEndTypeOptions;
+    case 'pointEndResult':
+      return pointEndResultOptions;
+    case 'strategy':
+      return strategyOptions;
+    case 'serveVolley':
+      return serveVolleyOptions;
+  }
+}
 
 // Helper to get the score for a set column
 // Column 0 = first set, column 1 = second set, etc.
@@ -246,19 +362,89 @@ function handleKey(e: KeyboardEvent) {
     return;
   }
   
+  const currentOptions = getOptionsForCategory(activeCategory.value);
+  const currentIndex = statCategories.indexOf(activeCategory.value);
+  const currentSelection = selections.value[activeCategory.value];
+  
   if (e.key === 'ArrowDown') {
-    selectedWinner.value = (selectedWinner.value + 1) % pointWinnerOptions.length;
+    e.preventDefault();
+    // If null, start at top (0)
+    // If at bottom, clear selection (null)
+    // Otherwise, move down
+    if (currentSelection === null) {
+      selections.value[activeCategory.value] = 0;
+    } else if (currentSelection === currentOptions.length - 1) {
+      // At bottom option, clear selection
+      selections.value[activeCategory.value] = null;
+    } else {
+      selections.value[activeCategory.value] = currentSelection + 1;
+    }
   } else if (e.key === 'ArrowUp') {
-    selectedWinner.value = (selectedWinner.value - 1 + pointWinnerOptions.length) % pointWinnerOptions.length;
+    e.preventDefault();
+    // If null, go to bottom option
+    // If at top (0), clear selection (null)
+    // Otherwise, move up
+    if (currentSelection === null) {
+      selections.value[activeCategory.value] = currentOptions.length - 1;
+    } else if (currentSelection === 0) {
+      // At top option, clear selection
+      selections.value[activeCategory.value] = null;
+    } else {
+      selections.value[activeCategory.value] = currentSelection - 1;
+    }
+  } else if (e.key === 'ArrowRight') {
+    e.preventDefault();
+    // Move to next category
+    const nextIndex = (currentIndex + 1) % statCategories.length;
+    const nextCategory = statCategories[nextIndex]!;
+    activeCategory.value = nextCategory;
+    // If entering a box for the first time, set selection to 0 (first option)
+    if (selections.value[nextCategory] === null) {
+      selections.value[nextCategory] = 0;
+    }
+  } else if (e.key === 'ArrowLeft') {
+    e.preventDefault();
+    // Move to previous category
+    const prevIndex = (currentIndex - 1 + statCategories.length) % statCategories.length;
+    const prevCategory = statCategories[prevIndex]!;
+    activeCategory.value = prevCategory;
+    // If entering a box for the first time, set selection to 0 (first option)
+    if (selections.value[prevCategory] === null) {
+      selections.value[prevCategory] = 0;
+    }
   } else if (e.key === 'Enter') {
-    submitPointWinner();
+    submitPoint();
   }
 }
 
-function submitPointWinner() {
+function submitPoint() {
+  // Helper to get selection value (default to 0 if null/unvisited)
+  const getSel = (cat: StatCategory) => selections.value[cat] ?? 0;
+  
+  // Record the point with all current selections
+  const pointData = {
+    firstServeLocation: serveLocationOptions[getSel('firstServeLocation')],
+    firstServeResult: serveResultOptions[getSel('firstServeResult')],
+    secondServeLocation: serveLocationOptions[getSel('secondServeLocation')],
+    secondServeResult: serveResultOptions[getSel('secondServeResult')],
+    returnSide: returnSideOptions[getSel('returnSide')],
+    returnType: returnTypeOptions[getSel('returnType')],
+    returnResult: returnResultOptions[getSel('returnResult')],
+    pointWinner: pointWinnerOptions[getSel('pointWinner')],
+    pointEndSide: pointEndSideOptions[getSel('pointEndSide')],
+    pointEndType: pointEndTypeOptions[getSel('pointEndType')],
+    pointEndResult: pointEndResultOptions[getSel('pointEndResult')],
+    strategy: strategyOptions[getSel('strategy')],
+    serveVolley: serveVolleyOptions[getSel('serveVolley')]
+  };
+  
+  console.log('Point recorded:', pointData);
+  
+  // Update score based on point winner (default to top player if not selected)
+  const pointWinnerSelection = getSel('pointWinner');
   if (inTiebreak.value) {
     // Tiebreak scoring
-    if (selectedWinner.value === 0) {
+    if (pointWinnerSelection === 0) {
       topTiebreakPoints.value++;
     } else {
       bottomTiebreakPoints.value++;
@@ -271,12 +457,34 @@ function submitPointWinner() {
     checkTiebreakWin();
   } else {
     // Regular game scoring
-    if (selectedWinner.value === 0) {
+    if (pointWinnerSelection === 0) {
       updateScore(topPoint, bottomPoint, topGames, bottomGames);
     } else {
       updateScore(bottomPoint, topPoint, bottomGames, topGames);
     }
   }
+  
+  // Reset selections to defaults for next point (except point winner stays at 0)
+  resetSelectionsForNextPoint();
+}
+
+function resetSelectionsForNextPoint() {
+  // Reset all selections to null (unvisited) except first box
+  selections.value.firstServeLocation = 0;  // First box starts selected
+  selections.value.firstServeResult = null;
+  selections.value.secondServeLocation = null;
+  selections.value.secondServeResult = null;
+  selections.value.returnSide = null;
+  selections.value.returnType = null;
+  selections.value.returnResult = null;
+  selections.value.pointWinner = null;
+  selections.value.pointEndSide = null;
+  selections.value.pointEndType = null;
+  selections.value.pointEndResult = null;
+  selections.value.strategy = null;
+  selections.value.serveVolley = null;
+  // Reset active category to first one
+  activeCategory.value = 'firstServeLocation';
 }
 
 function updateScore(
@@ -543,6 +751,22 @@ onUnmounted(() => {
   padding: 4px 12px;
   font-size: 0.95rem;
   text-align: center;
+  cursor: pointer;
+}
+.stat-option {
+  cursor: pointer;
+  padding: 2px 0;
+}
+.stat-option:hover,
+.point-winner-option:hover {
+  background-color: #e0e0e0;
+}
+.selectable-box {
+  cursor: pointer;
+}
+.active-box {
+  border-color: #8e267d;
+  border-width: 3px;
 }
 .selected-row {
   background-color: #fff59d;
