@@ -30,8 +30,6 @@
       </div>
     </div>
 
-    <div class="page-label">Singles Stat View</div>
-
     <!-- Score Box (top-left) -->
     <div class="score-box">
       <div class="score-row">
@@ -57,8 +55,44 @@
     </div>
 
     <!-- Point Trail -->
-    <div class="point-trail-box">
-      <div class="point-trail-label">Point Trail</div>
+    <div class="point-trail-box" ref="pointTrailBox">
+      <table class="point-trail-table">
+        <thead>
+          <tr>
+            <th>Point</th>
+            <th>Winner</th>
+            <th>1st Serve</th>
+            <th>2nd Serve</th>
+            <th>Return</th>
+            <th>Point End</th>
+            <th>Strategy</th>
+            <th>S&V</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Empty placeholder rows at top to ensure minimum 3 rows -->
+          <tr v-for="n in Math.max(0, 3 - pointHistory.length)" :key="'empty-' + n" class="empty-row">
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+          </tr>
+          <tr v-for="(point, index) in pointHistory" :key="index">
+            <td>{{ point.setNumber }}-{{ point.gameNumber }}-{{ point.pointNumber }}</td>
+            <td>{{ point.pointWinner }}</td>
+            <td>{{ point.firstServe }}</td>
+            <td>{{ point.secondServe }}</td>
+            <td>{{ point.returnStats }}</td>
+            <td>{{ point.pointEnd }}</td>
+            <td>{{ point.strategy }}</td>
+            <td>{{ point.serveVolley }}</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Stat Entry Row 1 -->
@@ -219,7 +253,7 @@
       </div>
       <!-- Serve & Volley: 1 box -->
       <div class="stat-group" :class="{ 'disabled-group': serveVolleyDisabled }">
-        <div class="stat-label-center">Serve &amp; Volley</div>
+        <div class="stat-label-center">S&amp;V</div>
         <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' && !serveVolleyDisabled, 'disabled-box': serveVolleyDisabled }" @click="!serveVolleyDisabled && (activeCategory = 'serveVolley')">
           <div class="stat-col">
             <div v-for="(opt, idx) in serveVolleyOptions" :key="idx"
@@ -244,7 +278,7 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -256,6 +290,9 @@ const initialServer = route.query.server as string || '';
 const server = ref(initialServer);
 
 const matchWinner = ref<string | null>(null);
+
+// Ref for point trail box to enable auto-scroll
+const pointTrailBox = ref<HTMLElement | null>(null);
 
 const pointScores = ['0', '15', '30', '40', 'Ad'];
 const topPoint = ref(0);
@@ -271,6 +308,23 @@ const inTiebreak = ref(false);
 const topTiebreakPoints = ref(0);
 const bottomTiebreakPoints = ref(0);
 const tiebreakFirstServer = ref<string | null>(null);
+
+// Point history for the trail
+interface PointRecord {
+  setNumber: number;
+  gameNumber: number;
+  pointNumber: number;
+  pointWinner: string;
+  firstServe: string;
+  secondServe: string;
+  returnStats: string;
+  pointEnd: string;
+  strategy: string;
+  serveVolley: string;
+}
+const pointHistory = ref<PointRecord[]>([]);
+const currentPointInGame = ref(1);
+const currentGameInSet = ref(1);
 
 // Stat categories and their options
 const statCategories = [
@@ -388,7 +442,7 @@ const activeCategory = ref<StatCategory>('firstServeLocation');
 
 // Selection state for each category (null = not yet visited/selected)
 const selections = ref<Record<StatCategory, number | null>>({
-  firstServeLocation: 0,  // Start with first box selected
+  firstServeLocation: 0,  // Default to Wide
   firstServeResult: null,
   secondServeLocation: null,
   secondServeResult: null,
@@ -793,24 +847,59 @@ function processPoint() {
   // Helper to get selection value (default to 0 if null/unvisited)
   const getSel = (cat: StatCategory) => selections.value[cat] ?? 0;
   
-  // Record the point with all current selections
-  const pointData = {
-    firstServeLocation: serveLocationOptions[getSel('firstServeLocation')],
-    firstServeResult: serveResultOptions[getSel('firstServeResult')],
-    secondServeLocation: serveLocationOptions[getSel('secondServeLocation')],
-    secondServeResult: serveResultOptions[getSel('secondServeResult')],
-    returnSide: returnSideOptions[getSel('returnSide')],
-    returnType: returnTypeOptions[getSel('returnType')],
-    returnResult: returnResultOptions[getSel('returnResult')],
-    pointWinner: pointWinnerOptions[getSel('pointWinner')],
-    pointEndSide: pointEndSideOptions[getSel('pointEndSide')],
-    pointEndType: pointEndTypeOptions[getSel('pointEndType')],
-    pointEndResult: pointEndResultOptions[getSel('pointEndResult')],
-    strategy: strategyOptions[getSel('strategy')],
-    serveVolley: serveVolleyOptions[getSel('serveVolley')]
+  // Format first serve: "Location, Result"
+  const firstServe = `${serveLocationOptions[getSel('firstServeLocation')]}, ${serveResultOptions[getSel('firstServeResult')]}`;
+  
+  // Format second serve: "Location, Result" or empty if not used
+  const secondServeUsed = getSel('firstServeResult') === 3; // Fault
+  const secondServe = secondServeUsed 
+    ? `${serveLocationOptions[getSel('secondServeLocation')]}, ${serveResultOptions[getSel('secondServeResult')]}`
+    : '';
+  
+  // Format return: "Side, Type, Result" or empty if skipped
+  const returnSkipped = returnDisabled.value;
+  const returnStats = returnSkipped
+    ? ''
+    : `${returnSideOptions[getSel('returnSide')]}, ${returnTypeOptions[getSel('returnType')]}, ${returnResultOptions[getSel('returnResult')]}`;
+  
+  // Format point end: "Side, Type, Result" or empty if skipped
+  const pointEndSkipped = pointEndDisabled.value;
+  const pointEnd = pointEndSkipped
+    ? ''
+    : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
+  
+  // Get strategy (empty if point end is disabled/skipped) and serve & volley
+  const strategy = pointEndSkipped ? '' : (strategyOptions[getSel('strategy')] ?? '');
+  const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
+  
+  // Create point record
+  const pointRecord: PointRecord = {
+    setNumber: currentSet.value,
+    gameNumber: currentGameInSet.value,
+    pointNumber: currentPointInGame.value,
+    pointWinner: pointWinnerOptions[getSel('pointWinner')] ?? '',
+    firstServe,
+    secondServe,
+    returnStats,
+    pointEnd,
+    strategy,
+    serveVolley
   };
   
-  console.log('Point recorded:', pointData);
+  // Add to history
+  pointHistory.value.push(pointRecord);
+  
+  // Scroll point trail to bottom to show latest point
+  nextTick(() => {
+    if (pointTrailBox.value) {
+      pointTrailBox.value.scrollTop = pointTrailBox.value.scrollHeight;
+    }
+  });
+  
+  // Increment point counter
+  currentPointInGame.value++;
+  
+  console.log('Point recorded:', pointRecord);
   
   // Update score based on point winner (default to top player if not selected)
   const pointWinnerSelection = getSel('pointWinner');
@@ -893,6 +982,8 @@ function switchServer() {
 
 function winGame(myGames: { value: number }, _oppGames: { value: number }) {
   myGames.value++;
+  currentPointInGame.value = 1; // Reset point counter for new game
+  currentGameInSet.value++; // Increment game counter
   switchServer(); // Server alternates after each game
   checkSetWin();
 }
@@ -971,6 +1062,7 @@ function winSet(_winner: 'top' | 'bottom') {
   bottomTiebreakPoints.value = 0;
   tiebreakFirstServer.value = null;
   currentSet.value++;
+  currentGameInSet.value = 1; // Reset game counter for new set
 }
 
 function goHome() {
@@ -1038,12 +1130,39 @@ onUnmounted(() => {
 /* Point Trail */
 .point-trail-box {
   border: 2px solid #111;
-  min-height: 120px;
-  padding: 16px;
+  max-height: 130px;
+  padding: 0;
   margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: auto;
+}
+.point-trail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  table-layout: fixed;
+}
+.point-trail-table th,
+.point-trail-table td {
+  border: 1px solid #ccc;
+  padding: 8px 6px;
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.point-trail-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+.point-trail-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+.point-trail-table tbody tr.empty-row {
+  background-color: transparent;
 }
 .point-trail-label {
   color: #aaa;
