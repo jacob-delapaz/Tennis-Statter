@@ -799,9 +799,6 @@ function handleKey(e: KeyboardEvent) {
     const isReturnError = activeCategory.value === 'returnResult' && 
       (selections.value.returnResult === 2 || selections.value.returnResult === 3);
     
-    // Auto-select Serve & Volley if return type is Pass or Lob
-    autoSelectServeVolleyIfNeeded();
-    
     if (isFirstServeAceOrWinner || isSecondServeAceOrWinner || isReturnError) {
       // Auto-select server as point winner
       selections.value.pointWinner = serverIndex.value;
@@ -812,9 +809,6 @@ function handleKey(e: KeyboardEvent) {
       }
       selections.value.pointWinner = returnerIndex.value;
     }
-    
-    // Auto-select strategy based on point end type (Pass) and result
-    autoSelectStrategyIfNeeded();
     
     // Validate that point winner is selected
     if (selections.value.pointWinner === null) {
