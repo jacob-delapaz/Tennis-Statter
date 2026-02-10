@@ -12,7 +12,8 @@
     <!-- Point Confirmation Popup -->
     <div v-if="showConfirmation" class="popup-overlay">
       <div class="popup-box">
-        <p>Confirming that <strong>{{ confirmationWinnerName }}</strong> is the point winner?</p>
+        <p v-if="editMode">Update point: <strong>{{ confirmationWinnerName }}</strong> wins?</p>
+        <p v-else>Confirming that <strong>{{ confirmationWinnerName }}</strong> is the point winner?</p>
         <div class="popup-buttons">
           <button class="confirm-btn yes-btn" @click="confirmPoint">Yes</button>
           <button class="confirm-btn no-btn" @click="cancelConfirmation">No</button>
@@ -30,27 +31,38 @@
       </div>
     </div>
 
-    <!-- Score Box (top-left) -->
-    <div class="score-box">
-      <div class="score-row">
-        <div class="player-cell">
-          <span v-if="server === topPlayer" class="dot">●</span>
-          {{ topPlayer }}
+    <!-- Edit Mode Banner -->
+    <div v-if="editMode" class="edit-mode-banner">
+      <span>✏️ Editing Point {{ pointHistory[editingPointIndex!]?.setNumber }}-{{ pointHistory[editingPointIndex!]?.gameNumber }}-{{ pointHistory[editingPointIndex!]?.pointNumber }}</span>
+      <button class="cancel-edit-btn" @click="exitEditMode">Cancel</button>
+    </div>
+
+    <!-- Radar Activation Box (top-right) -->
+    <div class="top-row">
+      <div class="score-box">
+        <div class="score-row">
+          <div class="player-cell">
+            <span v-if="server === topPlayer" class="dot">●</span>
+            {{ topPlayer }}
+          </div>
+          <div class="score-cell">{{ inTiebreak ? topTiebreakPoints : pointScores[topPoint] }}</div>
+          <div class="score-cell">{{ getSetScore('top', 0) }}</div>
+          <div class="score-cell">{{ getSetScore('top', 1) }}</div>
+          <div class="score-cell">{{ getSetScore('top', 2) }}</div>
         </div>
-        <div class="score-cell">{{ inTiebreak ? topTiebreakPoints : pointScores[topPoint] }}</div>
-        <div class="score-cell">{{ getSetScore('top', 0) }}</div>
-        <div class="score-cell">{{ getSetScore('top', 1) }}</div>
-        <div class="score-cell">{{ getSetScore('top', 2) }}</div>
+        <div class="score-row">
+          <div class="player-cell">
+            {{ bottomPlayer }}
+            <span v-if="server === bottomPlayer" class="dot">●</span>
+          </div>
+          <div class="score-cell">{{ inTiebreak ? bottomTiebreakPoints : pointScores[bottomPoint] }}</div>
+          <div class="score-cell">{{ getSetScore('bottom', 0) }}</div>
+          <div class="score-cell">{{ getSetScore('bottom', 1) }}</div>
+          <div class="score-cell">{{ getSetScore('bottom', 2) }}</div>
+        </div>
       </div>
-      <div class="score-row">
-        <div class="player-cell">
-          {{ bottomPlayer }}
-          <span v-if="server === bottomPlayer" class="dot">●</span>
-        </div>
-        <div class="score-cell">{{ inTiebreak ? bottomTiebreakPoints : pointScores[bottomPoint] }}</div>
-        <div class="score-cell">{{ getSetScore('bottom', 0) }}</div>
-        <div class="score-cell">{{ getSetScore('bottom', 1) }}</div>
-        <div class="score-cell">{{ getSetScore('bottom', 2) }}</div>
+      <div class="radar-box" :class="{ 'radar-active': radarActivated }">
+        {{ radarActivated ? 'Radar Activated' : 'Activate Radar' }}
       </div>
     </div>
 
@@ -81,7 +93,10 @@
             <td>&nbsp;</td>
             <td>&nbsp;</td>
           </tr>
-          <tr v-for="(point, index) in pointHistory" :key="index">
+          <tr v-for="(point, index) in pointHistory" :key="index" 
+              class="point-trail-row"
+              :class="{ 'editing-row': editMode && editingPointIndex === index }"
+              @click="enterEditMode(index)">
             <td>{{ point.setNumber }}-{{ point.gameNumber }}-{{ point.pointNumber }}</td>
             <td>{{ point.pointWinner }}</td>
             <td>{{ point.firstServe }}</td>
@@ -238,9 +253,9 @@
         </div>
       </div>
       <!-- Strategy: 1 box -->
-      <div class="stat-group" :class="{ 'disabled-group': pointEndDisabled }">
+      <div class="stat-group stat-group-strategy" :class="{ 'disabled-group': pointEndDisabled }">
         <div class="stat-label-center">Strategy</div>
-        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'strategy' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'strategy')">
+        <div class="stat-box stat-box-strategy selectable-box" :class="{ 'active-box': activeCategory === 'strategy' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'strategy')">
           <div class="stat-col">
             <div v-for="(opt, idx) in strategyOptions" :key="opt"
                  class="stat-option"
@@ -252,9 +267,9 @@
         </div>
       </div>
       <!-- Serve & Volley: 1 box -->
-      <div class="stat-group" :class="{ 'disabled-group': serveVolleyDisabled }">
+      <div class="stat-group stat-group-expand" :class="{ 'disabled-group': serveVolleyDisabled }">
         <div class="stat-label-center">S&amp;V</div>
-        <div class="stat-box selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' && !serveVolleyDisabled, 'disabled-box': serveVolleyDisabled }" @click="!serveVolleyDisabled && (activeCategory = 'serveVolley')">
+        <div class="stat-box stat-box-sv selectable-box" :class="{ 'active-box': activeCategory === 'serveVolley' && !serveVolleyDisabled, 'disabled-box': serveVolleyDisabled }" @click="!serveVolleyDisabled && (activeCategory = 'serveVolley')">
           <div class="stat-col">
             <div v-for="(opt, idx) in serveVolleyOptions" :key="idx"
                  class="stat-option"
@@ -265,11 +280,69 @@
           </div>
         </div>
       </div>
-      <!-- Summary Stats: 1 box -->
-      <div class="stat-group">
-        <div class="stat-label-center">&nbsp;</div>
+    </div>
+
+    <!-- Summary Statistics Row -->
+    <div class="stat-row summary-row-container">
+      <div class="stat-group summary-stats-group">
+        <div class="stat-label-center">Summary Statistics</div>
         <div class="stat-box stat-box-summary">
-          <div>Summary Stats So Far</div>
+          <div class="summary-stats-container">
+            <!-- Player names header -->
+            <div class="summary-header">
+              <div class="summary-stat-name"></div>
+              <div class="summary-player-name">{{ topPlayer }}</div>
+              <div class="summary-player-name">{{ bottomPlayer }}</div>
+            </div>
+            <!-- 1st Serve % -->
+            <div class="summary-row">
+              <div class="summary-stat-name">1st Serve %</div>
+              <div class="summary-value">{{ topPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-value">{{ bottomPlayerStats.firstServePercentage }}%</div>
+            </div>
+            <!-- 1st Serve Points Won % -->
+            <div class="summary-row">
+              <div class="summary-stat-name">1st Serve Pts Won %</div>
+              <div class="summary-value">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-value">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
+            </div>
+            <!-- Aces -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Aces</div>
+              <div class="summary-value">{{ topPlayerStats.aces }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.aces }}</div>
+            </div>
+            <!-- Double Faults -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Double Faults</div>
+              <div class="summary-value">{{ topPlayerStats.doubleFaults }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.doubleFaults }}</div>
+            </div>
+            <!-- Forehand Winners -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Forehand Winners</div>
+              <div class="summary-value">{{ topPlayerStats.forehandWinners }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.forehandWinners }}</div>
+            </div>
+            <!-- Backhand Winners -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Backhand Winners</div>
+              <div class="summary-value">{{ topPlayerStats.backhandWinners }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.backhandWinners }}</div>
+            </div>
+            <!-- Net Points Won -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Net Points Won</div>
+              <div class="summary-value">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
+            </div>
+            <!-- Unforced Errors -->
+            <div class="summary-row">
+              <div class="summary-stat-name">Unforced Errors</div>
+              <div class="summary-value">{{ topPlayerStats.unforcedErrors }}</div>
+              <div class="summary-value">{{ bottomPlayerStats.unforcedErrors }}</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -290,6 +363,10 @@ const initialServer = route.query.server as string || '';
 const server = ref(initialServer);
 
 const matchWinner = ref<string | null>(null);
+
+// Edit mode state
+const editMode = ref(false);
+const editingPointIndex = ref<number | null>(null);
 
 // Ref for point trail box to enable auto-scroll
 const pointTrailBox = ref<HTMLElement | null>(null);
@@ -321,10 +398,109 @@ interface PointRecord {
   pointEnd: string;
   strategy: string;
   serveVolley: string;
+  // Raw data for stat calculations
+  server: string;
+  pointWinnerIdx: number;
+  firstServeLocationIdx: number;
+  firstServeResultIdx: number;
+  secondServeLocationIdx: number | null;
+  secondServeResultIdx: number | null;
+  returnSideIdx: number | null;
+  returnTypeIdx: number | null;
+  returnResultIdx: number | null;
+  pointEndSideIdx: number | null;
+  pointEndTypeIdx: number | null;
+  pointEndResultIdx: number | null;
+  strategyIdx: number | null;
 }
 const pointHistory = ref<PointRecord[]>([]);
 const currentPointInGame = ref(1);
 const currentGameInSet = ref(1);
+
+// Radar activation state
+const radarActivated = ref(false);
+
+// Summary Statistics computed properties
+// Helper to get stats for a specific player
+const getPlayerStats = (playerName: string) => {
+  const points = pointHistory.value;
+  
+  // Points where this player was serving
+  const servePoints = points.filter(p => p.server === playerName);
+  
+  // First serve stats
+  const firstServeAttempts = servePoints.length;
+  const firstServesIn = servePoints.filter(p => p.firstServeResultIdx !== 3).length; // Not fault
+  const firstServePercentage = firstServeAttempts > 0 
+    ? Math.round((firstServesIn / firstServeAttempts) * 100) 
+    : 0;
+  
+  // First serve points won (won point when 1st serve was in)
+  const firstServePointsPlayed = servePoints.filter(p => p.firstServeResultIdx !== 3);
+  const firstServePointsWon = firstServePointsPlayed.filter(p => 
+    p.pointWinner === playerName
+  ).length;
+  const firstServePointsWonPercentage = firstServePointsPlayed.length > 0
+    ? Math.round((firstServePointsWon / firstServePointsPlayed.length) * 100)
+    : 0;
+  
+  // Aces (1st serve result = 1 or 2nd serve result = 1)
+  const aces = servePoints.filter(p => 
+    p.firstServeResultIdx === 1 || p.secondServeResultIdx === 1
+  ).length;
+  
+  // Double faults (2nd serve result = 3)
+  const doubleFaults = servePoints.filter(p => p.secondServeResultIdx === 3).length;
+  
+  // All points for this player (serving or returning)
+  const allPoints = points.filter(p => p.pointWinner === playerName);
+  
+  // Forehand winners (point end side = 0, result = 0, and this player won)
+  const forehandWinners = allPoints.filter(p => 
+    p.pointEndSideIdx === 0 && p.pointEndResultIdx === 0
+  ).length;
+  
+  // Backhand winners (point end side = 1, result = 0, and this player won)
+  const backhandWinners = allPoints.filter(p => 
+    p.pointEndSideIdx === 1 && p.pointEndResultIdx === 0
+  ).length;
+  
+  // Net points: points where this player was at net (strategyIdx > 0 means someone at net)
+  // We need to check if this specific player was at net
+  const getPlayerAtNetPoints = () => {
+    return points.filter(p => {
+      if (p.strategyIdx === null) return false;
+      // strategyIdx: 0=Baseline, 1=TopPlayer At Net, 2=BottomPlayer At Net, 3=Both At Net
+      if (p.strategyIdx === 3) return true; // Both at net
+      if (p.strategyIdx === 1 && playerName === topPlayer) return true;
+      if (p.strategyIdx === 2 && playerName === bottomPlayer) return true;
+      return false;
+    });
+  };
+  const netPoints = getPlayerAtNetPoints();
+  const netPointsWon = netPoints.filter(p => p.pointWinner === playerName).length;
+  
+  // Unforced errors (point end result = 1, and this player lost the point)
+  const unforcedErrors = points.filter(p => 
+    p.pointEndResultIdx === 1 && p.pointWinner !== playerName
+  ).length;
+  
+  return {
+    firstServePercentage,
+    firstServePointsWonPercentage,
+    aces,
+    doubleFaults,
+    forehandWinners,
+    backhandWinners,
+    netPointsWon,
+    netPointsTotal: netPoints.length,
+    unforcedErrors
+  };
+};
+
+// Computed stats for top player (current server context)
+const topPlayerStats = computed(() => getPlayerStats(topPlayer));
+const bottomPlayerStats = computed(() => getPlayerStats(bottomPlayer));
 
 // Stat categories and their options
 const statCategories = [
@@ -776,6 +952,12 @@ function handleKey(e: KeyboardEvent) {
         selections.value[prevCategory] = 0;
       }
     }
+  } else if (e.key === 'a' || e.key === 'A') {
+    // Activate radar
+    radarActivated.value = true;
+  } else if (e.key === 'c' || e.key === 'C') {
+    // Clear/deactivate radar
+    radarActivated.value = false;
   } else if (e.key === 'Enter') {
     // Check if at serve result with Ace or Winner - auto-select server as point winner
     const isFirstServeAceOrWinner = activeCategory.value === 'firstServeResult' && 
@@ -810,6 +992,14 @@ function handleKey(e: KeyboardEvent) {
       selections.value.pointWinner = returnerIndex.value;
     }
     
+    // Auto-select strategy if in point end box and strategy not manually set
+    const isInPointEndBox = activeCategory.value === 'pointEndSide' || 
+      activeCategory.value === 'pointEndType' || 
+      activeCategory.value === 'pointEndResult';
+    if (isInPointEndBox && selections.value.strategy === null) {
+      autoSelectStrategyIfNeeded();
+    }
+    
     // Validate that point winner is selected
     if (selections.value.pointWinner === null) {
       showPointWinnerError.value = true;
@@ -828,13 +1018,91 @@ function dismissPointWinnerError() {
 function confirmPoint() {
   // Hide the confirmation popup
   showConfirmation.value = false;
-  // Process the point
-  processPoint();
+  
+  if (editMode.value) {
+    // Update existing point
+    updateEditedPoint();
+  } else {
+    // Process new point
+    processPoint();
+  }
 }
 
 function cancelConfirmation() {
   // Hide the confirmation popup, keep selections as-is for editing
   showConfirmation.value = false;
+}
+
+// Update an existing point in edit mode
+function updateEditedPoint() {
+  if (editingPointIndex.value === null) return;
+  
+  const getSel = (cat: StatCategory) => selections.value[cat] ?? 0;
+  
+  // Format first serve: "Location, Result"
+  const firstServe = `${serveLocationOptions[getSel('firstServeLocation')]}, ${serveResultOptions[getSel('firstServeResult')]}`;
+  
+  // Format second serve: "Location, Result" or empty if not used
+  const secondServeUsed = getSel('firstServeResult') === 3; // Fault
+  const secondServe = secondServeUsed 
+    ? `${serveLocationOptions[getSel('secondServeLocation')]}, ${serveResultOptions[getSel('secondServeResult')]}`
+    : '';
+  
+  // Format return: "Side, Type, Result" or empty if skipped
+  const returnSkipped = returnDisabled.value;
+  const returnStats = returnSkipped
+    ? ''
+    : `${returnSideOptions[getSel('returnSide')]}, ${returnTypeOptions[getSel('returnType')]}, ${returnResultOptions[getSel('returnResult')]}`;
+  
+  // Format point end: "Side, Type, Result" or empty if skipped
+  const pointEndSkipped = pointEndDisabled.value;
+  const pointEnd = pointEndSkipped
+    ? ''
+    : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
+  
+  // Get strategy (empty if point end is disabled/skipped) and serve & volley
+  const strategy = pointEndSkipped ? '' : (strategyOptions[getSel('strategy')] ?? '');
+  const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
+  
+  // Keep the original point metadata (set, game, point numbers, server)
+  const originalPoint = pointHistory.value[editingPointIndex.value];
+  if (!originalPoint) return;
+  
+  // Update the point record
+  pointHistory.value[editingPointIndex.value] = {
+    setNumber: originalPoint.setNumber,
+    gameNumber: originalPoint.gameNumber,
+    pointNumber: originalPoint.pointNumber,
+    server: originalPoint.server,
+    pointWinner: pointWinnerOptions[getSel('pointWinner')] ?? '',
+    firstServe,
+    secondServe,
+    returnStats,
+    pointEnd,
+    strategy,
+    serveVolley,
+    // Raw data for statistics
+    pointWinnerIdx: getSel('pointWinner'),
+    firstServeLocationIdx: getSel('firstServeLocation'),
+    firstServeResultIdx: getSel('firstServeResult'),
+    secondServeLocationIdx: secondServeUsed ? getSel('secondServeLocation') : null,
+    secondServeResultIdx: secondServeUsed ? getSel('secondServeResult') : null,
+    returnSideIdx: returnSkipped ? null : getSel('returnSide'),
+    returnTypeIdx: returnSkipped ? null : getSel('returnType'),
+    returnResultIdx: returnSkipped ? null : getSel('returnResult'),
+    pointEndSideIdx: pointEndSkipped ? null : getSel('pointEndSide'),
+    pointEndTypeIdx: pointEndSkipped ? null : getSel('pointEndType'),
+    pointEndResultIdx: pointEndSkipped ? null : getSel('pointEndResult'),
+    strategyIdx: pointEndSkipped ? null : getSel('strategy')
+  };
+  
+  console.log('Point updated:', pointHistory.value[editingPointIndex.value]);
+  
+  // Reset radar activation
+  radarActivated.value = false;
+  
+  // Exit edit mode
+  exitEditMode();
 }
 
 function processPoint() {
@@ -866,7 +1134,7 @@ function processPoint() {
   const strategy = pointEndSkipped ? '' : (strategyOptions[getSel('strategy')] ?? '');
   const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
   
-  // Create point record
+  // Create point record with raw index data for stats calculations
   const pointRecord: PointRecord = {
     setNumber: currentSet.value,
     gameNumber: currentGameInSet.value,
@@ -877,7 +1145,21 @@ function processPoint() {
     returnStats,
     pointEnd,
     strategy,
-    serveVolley
+    serveVolley,
+    // Raw data for statistics
+    server: server.value,
+    firstServeLocationIdx: getSel('firstServeLocation'),
+    firstServeResultIdx: getSel('firstServeResult'),
+    secondServeLocationIdx: secondServeUsed ? getSel('secondServeLocation') : null,
+    secondServeResultIdx: secondServeUsed ? getSel('secondServeResult') : null,
+    returnSideIdx: returnSkipped ? null : getSel('returnSide'),
+    returnTypeIdx: returnSkipped ? null : getSel('returnType'),
+    returnResultIdx: returnSkipped ? null : getSel('returnResult'),
+    pointEndSideIdx: pointEndSkipped ? null : getSel('pointEndSide'),
+    pointEndTypeIdx: pointEndSkipped ? null : getSel('pointEndType'),
+    pointEndResultIdx: pointEndSkipped ? null : getSel('pointEndResult'),
+    strategyIdx: pointEndSkipped ? null : getSel('strategy'),
+    pointWinnerIdx: getSel('pointWinner')
   };
   
   // Add to history
@@ -919,6 +1201,9 @@ function processPoint() {
     }
   }
   
+  // Reset radar activation for next point
+  radarActivated.value = false;
+  
   // Reset selections to defaults for next point (except point winner stays at 0)
   resetSelectionsForNextPoint();
 }
@@ -940,6 +1225,41 @@ function resetSelectionsForNextPoint() {
   selections.value.serveVolley = null;
   // Reset active category to first one
   activeCategory.value = 'firstServeLocation';
+}
+
+// Enter edit mode for a specific point
+function enterEditMode(pointIndex: number) {
+  const point = pointHistory.value[pointIndex];
+  if (!point) return;
+  
+  editMode.value = true;
+  editingPointIndex.value = pointIndex;
+  
+  // Load the point's selections into the current selections
+  selections.value.firstServeLocation = point.firstServeLocationIdx;
+  selections.value.firstServeResult = point.firstServeResultIdx;
+  selections.value.secondServeLocation = point.secondServeLocationIdx;
+  selections.value.secondServeResult = point.secondServeResultIdx;
+  selections.value.returnSide = point.returnSideIdx;
+  selections.value.returnType = point.returnTypeIdx;
+  selections.value.returnResult = point.returnResultIdx;
+  selections.value.pointWinner = point.pointWinnerIdx;
+  selections.value.pointEndSide = point.pointEndSideIdx;
+  selections.value.pointEndType = point.pointEndTypeIdx;
+  selections.value.pointEndResult = point.pointEndResultIdx;
+  selections.value.strategy = point.strategyIdx;
+  selections.value.serveVolley = serveVolleyOptions.indexOf(point.serveVolley);
+  if (selections.value.serveVolley === -1) selections.value.serveVolley = 0;
+  
+  // Set active category to first box
+  activeCategory.value = 'firstServeLocation';
+}
+
+// Exit edit mode without saving
+function exitEditMode() {
+  editMode.value = false;
+  editingPointIndex.value = null;
+  resetSelectionsForNextPoint();
 }
 
 function updateScore(
@@ -1076,6 +1396,7 @@ onUnmounted(() => {
 .page {
   padding: 16px;
   font-family: sans-serif;
+  position: relative;
 }
 .page-label {
   font-size: 0.9rem;
@@ -1087,7 +1408,6 @@ onUnmounted(() => {
 .score-box {
   display: inline-block;
   border: 2px solid #111;
-  margin-bottom: 24px;
 }
 .score-row {
   display: flex;
@@ -1121,10 +1441,36 @@ onUnmounted(() => {
   font-size: 1.2rem;
 }
 
+/* Top Row (Score Box + Radar Box) */
+.top-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* Radar Box */
+.radar-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 160px;
+  padding: 0 24px;
+  border: 2px solid #111;
+  background-color: #ffd700;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: default;
+}
+.radar-box.radar-active {
+  background-color: #4caf50;
+  color: #fff;
+}
+
 /* Point Trail */
 .point-trail-box {
   border: 2px solid #111;
-  max-height: 130px;
+  max-height: 135px;
   padding: 0;
   margin-bottom: 24px;
   overflow: auto;
@@ -1158,9 +1504,44 @@ onUnmounted(() => {
 .point-trail-table tbody tr.empty-row {
   background-color: transparent;
 }
+.point-trail-row {
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+.point-trail-row:hover {
+  background-color: #e3f2fd !important;
+}
+.point-trail-row.editing-row {
+  background-color: #fff59d !important;
+}
 .point-trail-label {
   color: #aaa;
   font-size: 1rem;
+}
+
+/* Edit Mode Banner */
+.edit-mode-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #fff59d;
+  border: 2px solid #f9a825;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  font-weight: 600;
+}
+.cancel-edit-btn {
+  background: #888;
+  color: #fff;
+  border: none;
+  padding: 6px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.cancel-edit-btn:hover {
+  background: #666;
 }
 
 /* Stat Rows */
@@ -1200,12 +1581,65 @@ onUnmounted(() => {
 .stat-box-single {
   min-width: 100px;
 }
+.stat-box-strategy {
+  min-width: 160px;
+}
+.stat-box-sv {
+  min-width: 120px;
+}
+.stat-group-strategy {
+  flex: 2;
+}
+.stat-group-expand {
+  flex: 1;
+}
+.summary-row-container {
+  margin-top: 16px;
+}
 .stat-box-summary {
-  min-width: 180px;
+  min-width: 320px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #888;
+  flex-direction: column;
+  padding: 8px 12px;
+}
+.summary-stats-group .stat-label-center {
+  font-weight: 600;
+  color: #111;
+}
+.summary-stats-container {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.summary-header {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+  margin-bottom: 2px;
+}
+.summary-header .summary-player-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #111;
+}
+.summary-row {
+  display: flex;
+  font-size: 0.85rem;
+}
+.summary-stat-name {
+  flex: 2;
+  text-align: left;
+  color: #666;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.summary-player-name,
+.summary-value {
+  flex: 1;
+  text-align: center;
+  color: #111;
+  font-weight: 500;
 }
 .stat-col {
   padding: 0;
