@@ -285,62 +285,85 @@
     <!-- Summary Statistics Row -->
     <div class="stat-row summary-row-container">
       <div class="stat-group summary-stats-group">
-        <div class="stat-label-center">Summary Statistics</div>
         <div class="stat-box stat-box-summary">
           <div class="summary-stats-container">
-            <!-- Player names header -->
-            <div class="summary-header">
-              <div class="summary-stat-name"></div>
-              <div class="summary-player-name">{{ topPlayer }}</div>
-              <div class="summary-player-name">{{ bottomPlayer }}</div>
+            <!-- Player names header row -->
+            <div class="summary-header-row">
+              <div class="summary-player-header">{{ topPlayer }}</div>
+              <div class="summary-center-spacer"></div>
+              <div class="summary-player-header">{{ bottomPlayer }}</div>
+            </div>
+            <!-- Match/Set labels row -->
+            <div class="summary-subheader-row">
+              <div class="summary-col-label">Match</div>
+              <div class="summary-col-label">Set</div>
+              <div class="summary-center-spacer"></div>
+              <div class="summary-col-label">Set</div>
+              <div class="summary-col-label">Match</div>
             </div>
             <!-- 1st Serve % -->
-            <div class="summary-row">
-              <div class="summary-stat-name">1st Serve %</div>
-              <div class="summary-value">{{ topPlayerStats.firstServePercentage }}%</div>
-              <div class="summary-value">{{ bottomPlayerStats.firstServePercentage }}%</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ topPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-stat-label">1st Serve %</div>
+              <div class="summary-val">{{ bottomPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ bottomPlayerStats.firstServePercentage }}%</div>
             </div>
             <!-- 1st Serve Points Won % -->
-            <div class="summary-row">
-              <div class="summary-stat-name">1st Serve Pts Won %</div>
-              <div class="summary-value">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
-              <div class="summary-value">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-stat-label">1st Serve Pts Won %</div>
+              <div class="summary-val">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
             </div>
             <!-- Aces -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Aces</div>
-              <div class="summary-value">{{ topPlayerStats.aces }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.aces }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.aces }}</div>
+              <div class="summary-val">{{ topPlayerStats.aces }}</div>
+              <div class="summary-stat-label">Aces</div>
+              <div class="summary-val">{{ bottomPlayerStats.aces }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.aces }}</div>
             </div>
             <!-- Double Faults -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Double Faults</div>
-              <div class="summary-value">{{ topPlayerStats.doubleFaults }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.doubleFaults }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.doubleFaults }}</div>
+              <div class="summary-val">{{ topPlayerStats.doubleFaults }}</div>
+              <div class="summary-stat-label">Double Faults</div>
+              <div class="summary-val">{{ bottomPlayerStats.doubleFaults }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.doubleFaults }}</div>
             </div>
             <!-- Forehand Winners -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Forehand Winners</div>
-              <div class="summary-value">{{ topPlayerStats.forehandWinners }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.forehandWinners }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.forehandWinners }}</div>
+              <div class="summary-val">{{ topPlayerStats.forehandWinners }}</div>
+              <div class="summary-stat-label">Forehand Winners</div>
+              <div class="summary-val">{{ bottomPlayerStats.forehandWinners }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.forehandWinners }}</div>
             </div>
             <!-- Backhand Winners -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Backhand Winners</div>
-              <div class="summary-value">{{ topPlayerStats.backhandWinners }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.backhandWinners }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.backhandWinners }}</div>
+              <div class="summary-val">{{ topPlayerStats.backhandWinners }}</div>
+              <div class="summary-stat-label">Backhand Winners</div>
+              <div class="summary-val">{{ bottomPlayerStats.backhandWinners }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.backhandWinners }}</div>
             </div>
             <!-- Net Points Won -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Net Points Won</div>
-              <div class="summary-value">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
+              <div class="summary-stat-label">Net Points Won</div>
+              <div class="summary-val">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
             </div>
             <!-- Unforced Errors -->
-            <div class="summary-row">
-              <div class="summary-stat-name">Unforced Errors</div>
-              <div class="summary-value">{{ topPlayerStats.unforcedErrors }}</div>
-              <div class="summary-value">{{ bottomPlayerStats.unforcedErrors }}</div>
+            <div class="summary-data-row">
+              <div class="summary-val">{{ topPlayerStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ topPlayerStats.unforcedErrors }}</div>
+              <div class="summary-stat-label">Unforced Errors</div>
+              <div class="summary-val">{{ bottomPlayerStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ bottomPlayerStats.unforcedErrors }}</div>
             </div>
           </div>
         </div>
@@ -1597,10 +1620,10 @@ onUnmounted(() => {
   margin-top: 16px;
 }
 .stat-box-summary {
-  min-width: 320px;
+  min-width: 700px;
   display: flex;
   flex-direction: column;
-  padding: 8px 12px;
+  padding: 16px 24px;
 }
 .summary-stats-group .stat-label-center {
   font-weight: 600;
@@ -1609,8 +1632,51 @@ onUnmounted(() => {
 .summary-stats-container {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   width: 100%;
+}
+.summary-header-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.summary-player-header {
+  flex: 2;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #666;
+}
+.summary-center-spacer {
+  flex: 1.5;
+}
+.summary-subheader-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.summary-col-label {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+.summary-data-row {
+  display: flex;
+  align-items: center;
+}
+.summary-stat-label {
+  flex: 1.5;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #888;
+}
+.summary-val {
+  flex: 1;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #111;
 }
 .summary-header {
   display: flex;
