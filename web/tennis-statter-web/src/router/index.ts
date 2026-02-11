@@ -4,6 +4,7 @@ import ModeView from "../views/ModeView.vue";
 import EnterPlayersView from "../views/EnterPlayersView.vue";
 import ServeSelectionView from "../views/ServeSelectionView.vue";
 import SinglesStatView from "../views/SinglesStatView.vue";
+import DoublesStatView from "../views/DoublesStatView.vue";
 
 export default createRouter({
   history: createWebHistory(),
@@ -26,6 +27,11 @@ export default createRouter({
       path: "/singles-stat",
       name: "SinglesStat",
       component: SinglesStatView,
+    },
+    {
+      path: "/doubles-stat",
+      name: "DoublesStat",
+      component: DoublesStatView,
     },
   ],
 });

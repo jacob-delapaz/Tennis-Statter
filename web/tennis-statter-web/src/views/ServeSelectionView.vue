@@ -77,6 +77,19 @@ watch(
         },
       });
     }
+    if (isDoubles && s && r) {
+      router.push({
+        name: "DoublesStat",
+        query: {
+          team1Player1: topPlayer1,
+          team1Player2: topPlayer2,
+          team2Player1: bottomPlayer1,
+          team2Player2: bottomPlayer2,
+          server: s,
+          receiver: r,
+        },
+      });
+    }
   }
 );
 
