@@ -1436,7 +1436,7 @@ onUnmounted(() => {
   display: flex;
 }
 .player-cell {
-  min-width: 160px;
+  min-width: 400px;
   padding: 8px 12px;
   border-right: 2px solid #111;
   display: flex;

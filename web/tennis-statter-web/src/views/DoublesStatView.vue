@@ -13,7 +13,7 @@
     <div v-if="showConfirmation" class="popup-overlay">
       <div class="popup-box">
         <p v-if="editMode">Update point: <strong>{{ confirmationWinnerName }}</strong> wins?</p>
-        <p v-else>Confirming that <strong>{{ confirmationWinnerName }}</strong> is the point winner?</p>
+        <p v-else>Confirming that <strong>{{ confirmationWinnerName }}</strong> are the point winners?</p>
         <div class="popup-buttons">
           <button class="confirm-btn yes-btn" @click="confirmPoint">Yes</button>
           <button class="confirm-btn no-btn" @click="cancelConfirmation">No</button>
@@ -42,8 +42,8 @@
       <div class="score-box">
         <div class="score-row">
           <div class="player-cell">
-            <span v-if="server === topPlayer" class="dot">●</span>
-            {{ topPlayer }}
+            <span v-if="team1Players.includes(server)" class="dot">●</span>
+            {{ topTeam }}
           </div>
           <div class="score-cell">{{ inTiebreak ? topTiebreakPoints : pointScores[topPoint] }}</div>
           <div class="score-cell">{{ getSetScore('top', 0) }}</div>
@@ -52,8 +52,8 @@
         </div>
         <div class="score-row">
           <div class="player-cell">
-            {{ bottomPlayer }}
-            <span v-if="server === bottomPlayer" class="dot">●</span>
+            {{ bottomTeam }}
+            <span v-if="team2Players.includes(server)" class="dot">●</span>
           </div>
           <div class="score-cell">{{ inTiebreak ? bottomTiebreakPoints : pointScores[bottomPoint] }}</div>
           <div class="score-cell">{{ getSetScore('bottom', 0) }}</div>
@@ -77,7 +77,7 @@
             <th>2nd Serve</th>
             <th>Return</th>
             <th>Point End</th>
-            <th>Strategy</th>
+            <th>Player</th>
             <th>S&V</th>
           </tr>
         </thead>
@@ -103,7 +103,7 @@
             <td>{{ point.secondServe }}</td>
             <td>{{ point.returnStats }}</td>
             <td>{{ point.pointEnd }}</td>
-            <td>{{ point.strategy }}</td>
+            <td>{{ point.player }}</td>
             <td>{{ point.serveVolley }}</td>
           </tr>
         </tbody>
@@ -252,15 +252,15 @@
           </div>
         </div>
       </div>
-      <!-- Strategy: 1 box -->
+      <!-- Player: 1 box -->
       <div class="stat-group stat-group-strategy" :class="{ 'disabled-group': pointEndDisabled }">
-        <div class="stat-label-center">Strategy</div>
-        <div class="stat-box stat-box-strategy selectable-box" :class="{ 'active-box': activeCategory === 'strategy' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'strategy')">
+        <div class="stat-label-center">Player</div>
+        <div class="stat-box stat-box-strategy selectable-box" :class="{ 'active-box': activeCategory === 'player' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'player')">
           <div class="stat-col">
-            <div v-for="(opt, idx) in strategyOptions" :key="opt"
+            <div v-for="(opt, idx) in playerOptions" :key="opt"
                  class="stat-option"
-                 :class="{ 'selected-row': selections.strategy === idx && !pointEndDisabled }"
-                 @click.stop="!pointEndDisabled && (selections.strategy = idx, activeCategory = 'strategy')">
+                 :class="{ 'selected-row': selections.player === idx && !pointEndDisabled }"
+                 @click.stop="!pointEndDisabled && (selections.player = idx, activeCategory = 'player')">
               {{ opt }}
             </div>
           </div>
@@ -287,11 +287,11 @@
       <div class="stat-group summary-stats-group">
         <div class="stat-box stat-box-summary">
           <div class="summary-stats-container">
-            <!-- Player names header row -->
+            <!-- Team names header row -->
             <div class="summary-header-row">
-              <div class="summary-player-header">{{ topPlayer }}</div>
+              <div class="summary-player-header">{{ topTeam }}</div>
               <div class="summary-center-spacer"></div>
-              <div class="summary-player-header">{{ bottomPlayer }}</div>
+              <div class="summary-player-header">{{ bottomTeam }}</div>
             </div>
             <!-- Match/Set labels row -->
             <div class="summary-subheader-row">
@@ -303,67 +303,67 @@
             </div>
             <!-- 1st Serve % -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.firstServePercentage }}%</div>
-              <div class="summary-val">{{ topPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ topTeamStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ topTeamStats.firstServePercentage }}%</div>
               <div class="summary-stat-label">1st Serve %</div>
-              <div class="summary-val">{{ bottomPlayerStats.firstServePercentage }}%</div>
-              <div class="summary-val">{{ bottomPlayerStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ bottomTeamStats.firstServePercentage }}%</div>
+              <div class="summary-val">{{ bottomTeamStats.firstServePercentage }}%</div>
             </div>
             <!-- 1st Serve Points Won % -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
-              <div class="summary-val">{{ topPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ topTeamStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ topTeamStats.firstServePointsWonPercentage }}%</div>
               <div class="summary-stat-label">1st Serve Pts Won %</div>
-              <div class="summary-val">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
-              <div class="summary-val">{{ bottomPlayerStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ bottomTeamStats.firstServePointsWonPercentage }}%</div>
+              <div class="summary-val">{{ bottomTeamStats.firstServePointsWonPercentage }}%</div>
             </div>
             <!-- Aces -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.aces }}</div>
-              <div class="summary-val">{{ topPlayerStats.aces }}</div>
+              <div class="summary-val">{{ topTeamStats.aces }}</div>
+              <div class="summary-val">{{ topTeamStats.aces }}</div>
               <div class="summary-stat-label">Aces</div>
-              <div class="summary-val">{{ bottomPlayerStats.aces }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.aces }}</div>
+              <div class="summary-val">{{ bottomTeamStats.aces }}</div>
+              <div class="summary-val">{{ bottomTeamStats.aces }}</div>
             </div>
             <!-- Double Faults -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.doubleFaults }}</div>
-              <div class="summary-val">{{ topPlayerStats.doubleFaults }}</div>
+              <div class="summary-val">{{ topTeamStats.doubleFaults }}</div>
+              <div class="summary-val">{{ topTeamStats.doubleFaults }}</div>
               <div class="summary-stat-label">Double Faults</div>
-              <div class="summary-val">{{ bottomPlayerStats.doubleFaults }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.doubleFaults }}</div>
+              <div class="summary-val">{{ bottomTeamStats.doubleFaults }}</div>
+              <div class="summary-val">{{ bottomTeamStats.doubleFaults }}</div>
             </div>
             <!-- Forehand Winners -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.forehandWinners }}</div>
-              <div class="summary-val">{{ topPlayerStats.forehandWinners }}</div>
+              <div class="summary-val">{{ topTeamStats.forehandWinners }}</div>
+              <div class="summary-val">{{ topTeamStats.forehandWinners }}</div>
               <div class="summary-stat-label">Forehand Winners</div>
-              <div class="summary-val">{{ bottomPlayerStats.forehandWinners }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.forehandWinners }}</div>
+              <div class="summary-val">{{ bottomTeamStats.forehandWinners }}</div>
+              <div class="summary-val">{{ bottomTeamStats.forehandWinners }}</div>
             </div>
             <!-- Backhand Winners -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.backhandWinners }}</div>
-              <div class="summary-val">{{ topPlayerStats.backhandWinners }}</div>
+              <div class="summary-val">{{ topTeamStats.backhandWinners }}</div>
+              <div class="summary-val">{{ topTeamStats.backhandWinners }}</div>
               <div class="summary-stat-label">Backhand Winners</div>
-              <div class="summary-val">{{ bottomPlayerStats.backhandWinners }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.backhandWinners }}</div>
+              <div class="summary-val">{{ bottomTeamStats.backhandWinners }}</div>
+              <div class="summary-val">{{ bottomTeamStats.backhandWinners }}</div>
             </div>
             <!-- Net Points Won -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
-              <div class="summary-val">{{ topPlayerStats.netPointsWon }}/{{ topPlayerStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ topTeamStats.netPointsWon }}/{{ topTeamStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ topTeamStats.netPointsWon }}/{{ topTeamStats.netPointsTotal }}</div>
               <div class="summary-stat-label">Net Points Won</div>
-              <div class="summary-val">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.netPointsWon }}/{{ bottomPlayerStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ bottomTeamStats.netPointsWon }}/{{ bottomTeamStats.netPointsTotal }}</div>
+              <div class="summary-val">{{ bottomTeamStats.netPointsWon }}/{{ bottomTeamStats.netPointsTotal }}</div>
             </div>
             <!-- Unforced Errors -->
             <div class="summary-data-row">
-              <div class="summary-val">{{ topPlayerStats.unforcedErrors }}</div>
-              <div class="summary-val">{{ topPlayerStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ topTeamStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ topTeamStats.unforcedErrors }}</div>
               <div class="summary-stat-label">Unforced Errors</div>
-              <div class="summary-val">{{ bottomPlayerStats.unforcedErrors }}</div>
-              <div class="summary-val">{{ bottomPlayerStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ bottomTeamStats.unforcedErrors }}</div>
+              <div class="summary-val">{{ bottomTeamStats.unforcedErrors }}</div>
             </div>
           </div>
         </div>
@@ -374,16 +374,62 @@
 
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 
 const route = useRoute();
 const router = useRouter();
-const topPlayer = route.query.topPlayer as string || 'Top Player';
-const bottomPlayer = route.query.bottomPlayer as string || 'Bottom Player';
-const initialServer = route.query.server as string || '';
 
-// Current server (alternates each game)
+// Team 1 (top) players
+const team1Player1 = route.query.team1Player1 as string || 'Player 1';
+const team1Player2 = route.query.team1Player2 as string || 'Player 2';
+// Team 2 (bottom) players
+const team2Player1 = route.query.team2Player1 as string || 'Player 3';
+const team2Player2 = route.query.team2Player2 as string || 'Player 4';
+
+// Team display names
+const topTeam = `${team1Player1}/${team1Player2}`;
+const bottomTeam = `${team2Player1}/${team2Player2}`;
+
+// All players for reference
+const team1Players = [team1Player1, team1Player2];
+const team2Players = [team2Player1, team2Player2];
+
+const initialServer = route.query.server as string || '';
+const initialReceiver = route.query.receiver as string || '';
+
+// Current server (alternates each game in doubles rotation)
 const server = ref(initialServer);
+
+// Doubles serve rotation: team1 player, team2 player, team1 other player, team2 other player
+// Track the serve order for proper rotation
+const serveOrder = ref<string[]>([]);
+const currentServeOrderIndex = ref(0);
+
+// Initialize serve order based on initial server
+function initializeServeOrder() {
+  const firstServer = initialServer;
+  let firstTeam1Server: string;
+  let firstTeam2Server: string;
+  
+  if (team1Players.includes(firstServer)) {
+    // Team 1 serves first
+    firstTeam1Server = firstServer;
+    // Team 2's first server is set when they receive first (we'll use the receiver)
+    firstTeam2Server = initialReceiver || team2Player1;
+    // Order: T1-P1, T2-P1, T1-P2, T2-P2 (or T2's other player)
+    const otherTeam1 = team1Players.find(p => p !== firstTeam1Server) || team1Player2;
+    const otherTeam2 = team2Players.find(p => p !== firstTeam2Server) || team2Player2;
+    serveOrder.value = [firstTeam1Server, firstTeam2Server, otherTeam1, otherTeam2];
+  } else {
+    // Team 2 serves first
+    firstTeam2Server = firstServer;
+    firstTeam1Server = initialReceiver || team1Player1;
+    const otherTeam2 = team2Players.find(p => p !== firstTeam2Server) || team2Player2;
+    const otherTeam1 = team1Players.find(p => p !== firstTeam1Server) || team1Player2;
+    serveOrder.value = [firstTeam2Server, firstTeam1Server, otherTeam2, otherTeam1];
+  }
+}
+initializeServeOrder();
 
 const matchWinner = ref<string | null>(null);
 
@@ -419,7 +465,7 @@ interface PointRecord {
   secondServe: string;
   returnStats: string;
   pointEnd: string;
-  strategy: string;
+  player: string;
   serveVolley: string;
   // Raw data for stat calculations
   server: string;
@@ -434,7 +480,7 @@ interface PointRecord {
   pointEndSideIdx: number | null;
   pointEndTypeIdx: number | null;
   pointEndResultIdx: number | null;
-  strategyIdx: number | null;
+  playerIdx: number | null;
 }
 const pointHistory = ref<PointRecord[]>([]);
 const currentPointInGame = ref(1);
@@ -444,12 +490,12 @@ const currentGameInSet = ref(1);
 const radarActivated = ref(false);
 
 // Summary Statistics computed properties
-// Helper to get stats for a specific player
-const getPlayerStats = (playerName: string) => {
+// Helper to get stats for a specific team
+const getTeamStats = (teamPlayers: string[], teamName: string) => {
   const points = pointHistory.value;
   
-  // Points where this player was serving
-  const servePoints = points.filter(p => p.server === playerName);
+  // Points where a team member was serving
+  const servePoints = points.filter(p => teamPlayers.includes(p.server));
   
   // First serve stats
   const firstServeAttempts = servePoints.length;
@@ -461,7 +507,7 @@ const getPlayerStats = (playerName: string) => {
   // First serve points won (won point when 1st serve was in)
   const firstServePointsPlayed = servePoints.filter(p => p.firstServeResultIdx !== 3);
   const firstServePointsWon = firstServePointsPlayed.filter(p => 
-    p.pointWinner === playerName
+    p.pointWinner === teamName
   ).length;
   const firstServePointsWonPercentage = firstServePointsPlayed.length > 0
     ? Math.round((firstServePointsWon / firstServePointsPlayed.length) * 100)
@@ -475,37 +521,26 @@ const getPlayerStats = (playerName: string) => {
   // Double faults (2nd serve result = 3)
   const doubleFaults = servePoints.filter(p => p.secondServeResultIdx === 3).length;
   
-  // All points for this player (serving or returning)
-  const allPoints = points.filter(p => p.pointWinner === playerName);
+  // All points won by this team
+  const allPoints = points.filter(p => p.pointWinner === teamName);
   
-  // Forehand winners (point end side = 0, result = 0, and this player won)
+  // Forehand winners (point end side = 0, result = 0, and this team won)
   const forehandWinners = allPoints.filter(p => 
     p.pointEndSideIdx === 0 && p.pointEndResultIdx === 0
   ).length;
   
-  // Backhand winners (point end side = 1, result = 0, and this player won)
+  // Backhand winners (point end side = 1, result = 0, and this team won)
   const backhandWinners = allPoints.filter(p => 
     p.pointEndSideIdx === 1 && p.pointEndResultIdx === 0
   ).length;
   
-  // Net points: points where this player was at net (strategyIdx > 0 means someone at net)
-  // We need to check if this specific player was at net
-  const getPlayerAtNetPoints = () => {
-    return points.filter(p => {
-      if (p.strategyIdx === null) return false;
-      // strategyIdx: 0=Baseline, 1=TopPlayer At Net, 2=BottomPlayer At Net, 3=Both At Net
-      if (p.strategyIdx === 3) return true; // Both at net
-      if (p.strategyIdx === 1 && playerName === topPlayer) return true;
-      if (p.strategyIdx === 2 && playerName === bottomPlayer) return true;
-      return false;
-    });
-  };
-  const netPoints = getPlayerAtNetPoints();
-  const netPointsWon = netPoints.filter(p => p.pointWinner === playerName).length;
+  // Net points: no longer tracked since Strategy was replaced with Player
+  const netPoints: PointRecord[] = [];
+  const netPointsWon = 0;
   
-  // Unforced errors (point end result = 1, and this player lost the point)
+  // Unforced errors (point end result = 1, and this team lost the point)
   const unforcedErrors = points.filter(p => 
-    p.pointEndResultIdx === 1 && p.pointWinner !== playerName
+    p.pointEndResultIdx === 1 && p.pointWinner !== teamName
   ).length;
   
   return {
@@ -521,9 +556,9 @@ const getPlayerStats = (playerName: string) => {
   };
 };
 
-// Computed stats for top player (current server context)
-const topPlayerStats = computed(() => getPlayerStats(topPlayer));
-const bottomPlayerStats = computed(() => getPlayerStats(bottomPlayer));
+// Computed stats for each team
+const topTeamStats = computed(() => getTeamStats(team1Players, topTeam));
+const bottomTeamStats = computed(() => getTeamStats(team2Players, bottomTeam));
 
 // Stat categories and their options
 const statCategories = [
@@ -538,7 +573,7 @@ const statCategories = [
   'pointEndSide',
   'pointEndType',
   'pointEndResult',
-  'strategy',
+  'player',
   'serveVolley'
 ] as const;
 
@@ -550,11 +585,11 @@ const serveResultOptions = ['In Play', 'Ace', 'Winner', 'Fault'];
 const returnSideOptions = ['Forehand', 'Backhand'];
 const returnTypeOptions = ['Ground', 'Pass', 'Approach', 'Lob', 'Drop'];
 const returnResultOptions = ['In Play', 'Winner', 'Unforced', 'Forced'];
-const pointWinnerOptions = [topPlayer, bottomPlayer];
+const pointWinnerOptions = [topTeam, bottomTeam];
 const pointEndSideOptions = ['Forehand', 'Backhand'];
 const pointEndTypeOptions = ['Ground', 'Pass', 'Approach', 'Lob', 'Drop', 'Overhead', 'Volley'];
 const pointEndResultOptions = ['Winner', 'Unforced', 'Forced'];
-const strategyOptions = ['Baseline', `${topPlayer} At Net`, `${bottomPlayer} At Net`, 'Both At Net'];
+const playerOptions = [team1Player1, team1Player2, team2Player1, team2Player2];
 const serveVolleyOptions = ['', 'Serve & Volley'];
 
 // Confirmation popup state
@@ -586,14 +621,14 @@ const returnDisabled = computed(() => {
   }
 });
 
-// Get server index for point winner (0 = top player, 1 = bottom player)
-const serverIndex = computed(() => {
-  return server.value === topPlayer ? 0 : 1;
+// Get server team index for point winner (0 = top team, 1 = bottom team)
+const serverTeamIndex = computed(() => {
+  return team1Players.includes(server.value) ? 0 : 1;
 });
 
-// Get returner index (opposite of server)
-const returnerIndex = computed(() => {
-  return server.value === topPlayer ? 1 : 0;
+// Get returner team index (opposite of server team)
+const returnerTeamIndex = computed(() => {
+  return team1Players.includes(server.value) ? 1 : 0;
 });
 
 // Point End is disabled if return result is "Winner" (1), "Unforced" (2), or "Forced" (3)
@@ -652,7 +687,7 @@ const selections = ref<Record<StatCategory, number | null>>({
   pointEndSide: null,
   pointEndType: null,
   pointEndResult: null,
-  strategy: null,
+  player: null,
   serveVolley: null
 });
 
@@ -679,8 +714,8 @@ function getOptionsForCategory(category: StatCategory): string[] {
       return pointEndTypeOptions;
     case 'pointEndResult':
       return pointEndResultOptions;
-    case 'strategy':
-      return strategyOptions;
+    case 'player':
+      return playerOptions;
     case 'serveVolley':
       return serveVolleyOptions;
   }
@@ -715,68 +750,6 @@ function autoSelectServeVolleyIfNeeded() {
   if (returnType === 1 || returnType === 3) {
     // Pass or Lob - auto-select Serve & Volley (index 1)
     selections.value.serveVolley = 1;
-  }
-}
-
-// Auto-select strategy based on point end type, result, and winner
-// pointEndType: 1 = 'Pass', 2 = 'Approach', 3 = 'Lob', 5 = 'Overhead', 6 = 'Volley'
-// pointEndResult: 0 = 'Winner', 1 = 'Unforced', 2 = 'Forced'
-// strategy: 1 = topPlayer At Net, 2 = bottomPlayer At Net
-function autoSelectStrategyIfNeeded() {
-  // Use 0 as default for null (unvisited) values
-  const pointEndType = selections.value.pointEndType ?? 0;
-  const pointEndResult = selections.value.pointEndResult ?? 0;
-  const pointWinner = selections.value.pointWinner ?? 0;
-  
-  // Pass (1) or Lob (3): opponent was at net
-  const isPassOrLob = pointEndType === 1 || pointEndType === 3;
-  // Approach (2), Overhead (5), Volley (6): player hitting was at net
-  const isNetShot = pointEndType === 2 || pointEndType === 5 || pointEndType === 6;
-  
-  if (!isPassOrLob && !isNetShot) return;
-  
-  if (isPassOrLob) {
-    // Pass/Lob logic: opponent was at net
-    if (pointEndResult === 0) {
-      // Winner - the player at net lost the point (got passed/lobbed)
-      if (pointWinner === 0) {
-        // Top player won with a passing/lob winner → Bottom was at net
-        selections.value.strategy = 2; // bottomPlayer At Net
-      } else if (pointWinner === 1) {
-        // Bottom player won with a passing/lob winner → Top was at net
-        selections.value.strategy = 1; // topPlayer At Net
-      }
-    } else if (pointEndResult === 1 || pointEndResult === 2) {
-      // Unforced or Forced error - the player who made the error was passing/lobbing, opponent was at net
-      if (pointWinner === 0) {
-        // Top player won → Bottom made passing/lob error → Top was at net
-        selections.value.strategy = 1; // topPlayer At Net
-      } else if (pointWinner === 1) {
-        // Bottom player won → Top made passing/lob error → Bottom was at net
-        selections.value.strategy = 2; // bottomPlayer At Net
-      }
-    }
-  } else if (isNetShot) {
-    // Approach/Overhead/Volley logic: player hitting was at net
-    if (pointEndResult === 0) {
-      // Winner - the player at net won with an approach/overhead/volley winner
-      if (pointWinner === 0) {
-        // Top player won with net shot winner → Top was at net
-        selections.value.strategy = 1; // topPlayer At Net
-      } else if (pointWinner === 1) {
-        // Bottom player won with net shot winner → Bottom was at net
-        selections.value.strategy = 2; // bottomPlayer At Net
-      }
-    } else if (pointEndResult === 1 || pointEndResult === 2) {
-      // Unforced or Forced error - the player attempting the net shot made an error
-      if (pointWinner === 0) {
-        // Top player won → Bottom made net shot error → Bottom was at net
-        selections.value.strategy = 2; // bottomPlayer At Net
-      } else if (pointWinner === 1) {
-        // Bottom player won → Top made net shot error → Top was at net
-        selections.value.strategy = 1; // topPlayer At Net
-      }
-    }
   }
 }
 
@@ -853,7 +826,7 @@ function handleKey(e: KeyboardEvent) {
       const firstResult = selections.value.firstServeResult;
       if (firstResult === 1 || firstResult === 2) {
         // Ace or Winner - skip to pointWinner, auto-select server
-        selections.value.pointWinner = serverIndex.value;
+        selections.value.pointWinner = serverTeamIndex.value;
         activeCategory.value = 'pointWinner';
       } else {
         // In Play - go to returnSide
@@ -866,18 +839,18 @@ function handleKey(e: KeyboardEvent) {
       // "In Net" selected - auto-set result to "Fault" (double fault)
       // Skip return, auto-select returner as point winner
       selections.value.secondServeResult = 3;
-      selections.value.pointWinner = returnerIndex.value;
+      selections.value.pointWinner = returnerTeamIndex.value;
       activeCategory.value = 'pointWinner';
     } else if (activeCategory.value === 'secondServeResult') {
       // Check 2nd serve result
       const secondResult = selections.value.secondServeResult;
       if (secondResult === 1 || secondResult === 2) {
         // Ace or Winner - skip return, auto-select server
-        selections.value.pointWinner = serverIndex.value;
+        selections.value.pointWinner = serverTeamIndex.value;
         activeCategory.value = 'pointWinner';
       } else if (secondResult === 3) {
         // Fault (double fault) - skip return, auto-select returner
-        selections.value.pointWinner = returnerIndex.value;
+        selections.value.pointWinner = returnerTeamIndex.value;
         activeCategory.value = 'pointWinner';
       } else {
         // In Play - normal navigation to returnSide
@@ -899,7 +872,7 @@ function handleKey(e: KeyboardEvent) {
       const returnResult = selections.value.returnResult;
       if (returnResult === 1) {
         // Winner - skip point end, auto-select returner
-        selections.value.pointWinner = returnerIndex.value;
+        selections.value.pointWinner = returnerTeamIndex.value;
         activeCategory.value = 'pointWinner';
       } else {
         // In Play, Unforced, or Forced - normal navigation to pointWinner
@@ -910,8 +883,8 @@ function handleKey(e: KeyboardEvent) {
           selections.value[nextCategory] = 0;
         }
       }
-    } else if (activeCategory.value === 'strategy') {
-      // If moving from strategy to serveVolley but serveVolley is disabled, wrap to firstServeLocation
+    } else if (activeCategory.value === 'player') {
+      // If moving from player to serveVolley but serveVolley is disabled, wrap to firstServeLocation
       if (serveVolleyDisabled.value) {
         activeCategory.value = 'firstServeLocation';
         selections.value.firstServeLocation = 0;
@@ -922,12 +895,10 @@ function handleKey(e: KeyboardEvent) {
         }
       }
     } else if (activeCategory.value === 'pointEndResult') {
-      // Auto-select strategy based on point end type (Pass) and result when exiting pointEndResult
-      autoSelectStrategyIfNeeded();
-      // Normal navigation to strategy
-      activeCategory.value = 'strategy';
-      if (selections.value.strategy === null) {
-        selections.value.strategy = 0;
+      // Navigate to player box
+      activeCategory.value = 'player';
+      if (selections.value.player === null) {
+        selections.value.player = 0;
       }
     } else {
       // Normal navigation - move to next category
@@ -945,10 +916,6 @@ function handleKey(e: KeyboardEvent) {
     if (activeCategory.value === 'returnSide' || activeCategory.value === 'returnResult') {
       autoSelectServeVolleyIfNeeded();
     }
-    // Auto-select strategy if leaving strategy box (may have edited point end values)
-    if (activeCategory.value === 'strategy') {
-      autoSelectStrategyIfNeeded();
-    }
     // If at pointWinner and point end is disabled due to return winner, skip back to returnResult
     if (activeCategory.value === 'pointWinner' && pointEndDisabled.value && !returnDisabled.value) {
       activeCategory.value = 'returnResult';
@@ -963,8 +930,8 @@ function handleKey(e: KeyboardEvent) {
       // If at returnSide and 2nd serve is disabled, skip back to firstServeResult
       activeCategory.value = 'firstServeResult';
     } else if (activeCategory.value === 'firstServeLocation' && serveVolleyDisabled.value) {
-      // If at first box and serveVolley is disabled, skip back to strategy
-      activeCategory.value = 'strategy';
+      // If at first box and serveVolley is disabled, skip back to player
+      activeCategory.value = 'player';
     } else {
       // Normal navigation - move to previous category
       const prevIndex = (currentIndex - 1 + statCategories.length) % statCategories.length;
@@ -1006,21 +973,13 @@ function handleKey(e: KeyboardEvent) {
     
     if (isFirstServeAceOrWinner || isSecondServeAceOrWinner || isReturnError) {
       // Auto-select server as point winner
-      selections.value.pointWinner = serverIndex.value;
+      selections.value.pointWinner = serverTeamIndex.value;
     } else if (isSecondServeInNet || isSecondServeFault || isReturnWinner) {
       // Returner wins - double fault or return winner
       if (isSecondServeInNet) {
         selections.value.secondServeResult = 3; // Set result to Fault
       }
-      selections.value.pointWinner = returnerIndex.value;
-    }
-    
-    // Auto-select strategy if in point end box and strategy not manually set
-    const isInPointEndBox = activeCategory.value === 'pointEndSide' || 
-      activeCategory.value === 'pointEndType' || 
-      activeCategory.value === 'pointEndResult';
-    if (isInPointEndBox && selections.value.strategy === null) {
-      autoSelectStrategyIfNeeded();
+      selections.value.pointWinner = returnerTeamIndex.value;
     }
     
     // Validate that point winner is selected
@@ -1083,8 +1042,8 @@ function updateEditedPoint() {
     ? ''
     : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
   
-  // Get strategy (empty if point end is disabled/skipped) and serve & volley
-  const strategy = pointEndSkipped ? '' : (strategyOptions[getSel('strategy')] ?? '');
+  // Get player (empty if point end is disabled/skipped) and serve & volley
+  const player = pointEndSkipped ? '' : (playerOptions[getSel('player')] ?? '');
   const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
   
   // Keep the original point metadata (set, game, point numbers, server)
@@ -1102,7 +1061,7 @@ function updateEditedPoint() {
     secondServe,
     returnStats,
     pointEnd,
-    strategy,
+    player,
     serveVolley,
     // Raw data for statistics
     pointWinnerIdx: getSel('pointWinner'),
@@ -1116,7 +1075,7 @@ function updateEditedPoint() {
     pointEndSideIdx: pointEndSkipped ? null : getSel('pointEndSide'),
     pointEndTypeIdx: pointEndSkipped ? null : getSel('pointEndType'),
     pointEndResultIdx: pointEndSkipped ? null : getSel('pointEndResult'),
-    strategyIdx: pointEndSkipped ? null : getSel('strategy')
+    playerIdx: pointEndSkipped ? null : getSel('player')
   };
   
   console.log('Point updated:', pointHistory.value[editingPointIndex.value]);
@@ -1153,8 +1112,8 @@ function processPoint() {
     ? ''
     : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
   
-  // Get strategy (empty if point end is disabled/skipped) and serve & volley
-  const strategy = pointEndSkipped ? '' : (strategyOptions[getSel('strategy')] ?? '');
+  // Get player (empty if point end is disabled/skipped) and serve & volley
+  const player = pointEndSkipped ? '' : (playerOptions[getSel('player')] ?? '');
   const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
   
   // Create point record with raw index data for stats calculations
@@ -1167,7 +1126,7 @@ function processPoint() {
     secondServe,
     returnStats,
     pointEnd,
-    strategy,
+    player,
     serveVolley,
     // Raw data for statistics
     server: server.value,
@@ -1181,7 +1140,7 @@ function processPoint() {
     pointEndSideIdx: pointEndSkipped ? null : getSel('pointEndSide'),
     pointEndTypeIdx: pointEndSkipped ? null : getSel('pointEndType'),
     pointEndResultIdx: pointEndSkipped ? null : getSel('pointEndResult'),
-    strategyIdx: pointEndSkipped ? null : getSel('strategy'),
+    playerIdx: pointEndSkipped ? null : getSel('player'),
     pointWinnerIdx: getSel('pointWinner')
   };
   
@@ -1244,7 +1203,7 @@ function resetSelectionsForNextPoint() {
   selections.value.pointEndSide = null;
   selections.value.pointEndType = null;
   selections.value.pointEndResult = null;
-  selections.value.strategy = null;
+  selections.value.player = null;
   selections.value.serveVolley = null;
   // Reset active category to first one
   activeCategory.value = 'firstServeLocation';
@@ -1270,7 +1229,7 @@ function enterEditMode(pointIndex: number) {
   selections.value.pointEndSide = point.pointEndSideIdx;
   selections.value.pointEndType = point.pointEndTypeIdx;
   selections.value.pointEndResult = point.pointEndResultIdx;
-  selections.value.strategy = point.strategyIdx;
+  selections.value.player = point.playerIdx;
   selections.value.serveVolley = serveVolleyOptions.indexOf(point.serveVolley);
   if (selections.value.serveVolley === -1) selections.value.serveVolley = 0;
   
@@ -1314,7 +1273,9 @@ function updateScore(
 }
 
 function switchServer() {
-  server.value = server.value === topPlayer ? bottomPlayer : topPlayer;
+  // Move to next in serve rotation (cycles through all 4 players)
+  currentServeOrderIndex.value = (currentServeOrderIndex.value + 1) % 4;
+  server.value = serveOrder.value[currentServeOrderIndex.value] || initialServer;
 }
 
 function winGame(myGames: { value: number }, _oppGames: { value: number }) {
@@ -1375,11 +1336,11 @@ function winSet(_winner: 'top' | 'bottom') {
   const bottomSetsWon = bottomSets.value.filter((s, i) => s > (topSets.value[i] ?? 0)).length;
 
   if (topSetsWon >= 2) {
-    matchWinner.value = topPlayer;
+    matchWinner.value = topTeam;
     return;
   }
   if (bottomSetsWon >= 2) {
-    matchWinner.value = bottomPlayer;
+    matchWinner.value = bottomTeam;
     return;
   }
 
@@ -1389,9 +1350,10 @@ function winSet(_winner: 'top' | 'bottom') {
   topPoint.value = 0;
   bottomPoint.value = 0;
   
-  // After a tiebreak, the player who served second in the tiebreak serves first in the next set
-  if (inTiebreak.value && tiebreakFirstServer.value) {
-    server.value = tiebreakFirstServer.value === topPlayer ? bottomPlayer : topPlayer;
+  // After a tiebreak, continue serve rotation from where it left off
+  // The next server in order should serve first in the new set
+  if (inTiebreak.value) {
+    // Already on correct server from tiebreak rotation
   }
   
   inTiebreak.value = false;
@@ -1436,7 +1398,7 @@ onUnmounted(() => {
   display: flex;
 }
 .player-cell {
-  min-width: 160px;
+  min-width: 400px;
   padding: 8px 12px;
   border-right: 2px solid #111;
   display: flex;
