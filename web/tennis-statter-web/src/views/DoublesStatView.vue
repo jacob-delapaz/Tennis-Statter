@@ -255,12 +255,12 @@
       <!-- Player: 1 box -->
       <div class="stat-group stat-group-strategy" :class="{ 'disabled-group': pointEndDisabled }">
         <div class="stat-label-center">Player</div>
-        <div class="stat-box stat-box-strategy selectable-box" :class="{ 'active-box': activeCategory === 'player' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (activeCategory = 'player')">
+        <div class="stat-box stat-box-strategy selectable-box" :class="{ 'active-box': activeCategory === 'player' && !pointEndDisabled, 'disabled-box': pointEndDisabled }" @click="!pointEndDisabled && (playerBoxVisited = true, activeCategory = 'player')">
           <div class="stat-col">
-            <div v-for="(opt, idx) in playerOptions" :key="opt"
+            <div v-for="(opt, idx) in filteredPlayerOptions" :key="opt"
                  class="stat-option"
                  :class="{ 'selected-row': selections.player === idx && !pointEndDisabled }"
-                 @click.stop="!pointEndDisabled && (selections.player = idx, activeCategory = 'player')">
+                 @click.stop="!pointEndDisabled && (playerBoxVisited = true, selections.player = idx, activeCategory = 'player')">
               {{ opt }}
             </div>
           </div>
@@ -592,6 +592,34 @@ const pointEndResultOptions = ['Winner', 'Unforced', 'Forced'];
 const playerOptions = [team1Player1, team1Player2, team2Player1, team2Player2];
 const serveVolleyOptions = ['', 'Serve & Volley'];
 
+// Track if user has navigated to player box (to show filtered options)
+const playerBoxVisited = ref(false);
+
+// Filtered player options based on point end result and point winner
+// Winner (0) = show players from winning team
+// Unforced (1) or Forced (2) = show players from losing team
+const filteredPlayerOptions = computed(() => {
+  if (!playerBoxVisited.value) return [];
+  
+  const pointEndResult = selections.value.pointEndResult;
+  const pointWinner = selections.value.pointWinner;
+  
+  if (pointEndResult === null || pointWinner === null) return [];
+  
+  // pointWinner: 0 = top team (team1), 1 = bottom team (team2)
+  const winningTeamPlayers = pointWinner === 0 ? team1Players : team2Players;
+  const losingTeamPlayers = pointWinner === 0 ? team2Players : team1Players;
+  
+  // pointEndResult: 0 = Winner, 1 = Unforced, 2 = Forced
+  if (pointEndResult === 0) {
+    // Winner - player from winning team hit the winning shot
+    return winningTeamPlayers;
+  } else {
+    // Unforced or Forced error - player from losing team made the error
+    return losingTeamPlayers;
+  }
+});
+
 // Confirmation popup state
 const showConfirmation = ref(false);
 
@@ -895,7 +923,8 @@ function handleKey(e: KeyboardEvent) {
         }
       }
     } else if (activeCategory.value === 'pointEndResult') {
-      // Navigate to player box
+      // Navigate to player box - set visited flag to show filtered options
+      playerBoxVisited.value = true;
       activeCategory.value = 'player';
       if (selections.value.player === null) {
         selections.value.player = 0;
@@ -1043,7 +1072,7 @@ function updateEditedPoint() {
     : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
   
   // Get player (empty if point end is disabled/skipped) and serve & volley
-  const player = pointEndSkipped ? '' : (playerOptions[getSel('player')] ?? '');
+  const player = pointEndSkipped ? '' : (filteredPlayerOptions.value[getSel('player')] ?? '');
   const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
   
   // Keep the original point metadata (set, game, point numbers, server)
@@ -1113,7 +1142,7 @@ function processPoint() {
     : `${pointEndSideOptions[getSel('pointEndSide')]}, ${pointEndTypeOptions[getSel('pointEndType')]}, ${pointEndResultOptions[getSel('pointEndResult')]}`;
   
   // Get player (empty if point end is disabled/skipped) and serve & volley
-  const player = pointEndSkipped ? '' : (playerOptions[getSel('player')] ?? '');
+  const player = pointEndSkipped ? '' : (filteredPlayerOptions.value[getSel('player')] ?? '');
   const serveVolley = serveVolleyOptions[getSel('serveVolley')] ?? '';
   
   // Create point record with raw index data for stats calculations
@@ -1205,6 +1234,8 @@ function resetSelectionsForNextPoint() {
   selections.value.pointEndResult = null;
   selections.value.player = null;
   selections.value.serveVolley = null;
+  // Reset player box visited flag
+  playerBoxVisited.value = false;
   // Reset active category to first one
   activeCategory.value = 'firstServeLocation';
 }
@@ -1229,6 +1260,8 @@ function enterEditMode(pointIndex: number) {
   selections.value.pointEndSide = point.pointEndSideIdx;
   selections.value.pointEndType = point.pointEndTypeIdx;
   selections.value.pointEndResult = point.pointEndResultIdx;
+  // Set playerBoxVisited so filtered options are shown when editing
+  playerBoxVisited.value = true;
   selections.value.player = point.playerIdx;
   selections.value.serveVolley = serveVolleyOptions.indexOf(point.serveVolley);
   if (selections.value.serveVolley === -1) selections.value.serveVolley = 0;
